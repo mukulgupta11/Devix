@@ -1,6 +1,4 @@
-# 🧠 Devix – AI-Powered Web IDE
-
-![Devix Thumbnail](public/vibe-code-editor-thumbnail.svg)
+#  Devix – AI-Powered Web IDE
 
 **Devix** is a blazing-fast, AI-integrated web IDE built entirely in the browser using **Next.js App Router**, **WebContainers**, **Monaco Editor**, and **Google's Gemini 2.5 Flash Lite API**. It offers real-time code execution, an AI-powered chat assistant, support for multiple tech stacks, and direct GitHub repository imports — all wrapped in a stunning developer-first UI.
 
@@ -8,21 +6,21 @@
 
 ## 🚀 Features
 
-- 🔐 **OAuth Login with NextAuth** – Supports Google & GitHub login via Prisma & MongoDB.
-- 🎨 **Modern UI** – Built with Tailwind CSS & Shadcn UI.
-- 🌗 **Dark/Light Mode** – Seamlessly toggle between themes across the editor, terminal, and UI.
-- 🧱 **Project Templates** – Start fresh with React, Next.js, Express, Hono, Vue, or Angular templates.
-- 🐙 **GitHub Repository Import** – Instantly clone and mount public GitHub repositories directly into your browser. 
-- 🗂️ **Custom File Explorer** – Create, rename, delete, manage files/folders, with IDE-standard sorting (folders first).
-- 🖊️ **Enhanced Monaco Editor** – Syntax highlighting, formatting, custom keybindings, and inline AI autocomplete.
-- 💡 **AI Autocomplete suggestions** – Powered by Google Gemini. Context-aware code completion triggered via `Ctrl + Space` or typing context. Accept with `Tab`.
-- ⚙️ **WebContainers Integration** – Instantly run frontend & backend node apps right inside the browser – no VMs or remote servers required.
-- 💻 **Terminal with xterm.js** – Fully interactive embedded terminal experience.
-- 🤖 **AI Chat Assistant** – Share your current files with the AI as context, get explanations, debug issues, or ask for refactors.
+-  **OAuth Login with NextAuth** – Supports Google & GitHub login via Prisma & MongoDB.
+-  **Modern UI** – Built with Tailwind CSS & Shadcn UI.
+-  **Dark/Light Mode** – Seamlessly toggle between themes across the editor, terminal, and UI.
+-  **Project Templates** – Start fresh with React, Next.js, Express, Hono, Vue, or Angular templates.
+-  **GitHub Repository Import** – Instantly clone and mount public GitHub repositories directly into your browser. 
+-  **Custom File Explorer** – Create, rename, delete, manage files/folders, with IDE-standard sorting (folders first).
+-  **Enhanced Monaco Editor** – Syntax highlighting, formatting, custom keybindings, and inline AI autocomplete.
+-  **AI Autocomplete suggestions** – Powered by Google Gemini. Context-aware code completion triggered via `Ctrl + Space` or typing context. Accept with `Tab`.
+-  **WebContainers Integration** – Instantly run frontend & backend node apps right inside the browser – no VMs or remote servers required.
+-  **Terminal with xterm.js** – Fully interactive embedded terminal experience.
+-  **AI Chat Assistant** – Share your current files with the AI as context, get explanations, debug issues, or ask for refactors.
 
 ---
 
-## 🧱 Tech Stack
+##  Tech Stack
 
 | Layer         | Technology                                   |
 |---------------|----------------------------------------------|
@@ -39,12 +37,12 @@
 
 ---
 
-## 🛠️ Getting Started
+##  Getting Started
 
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/your-username/devix.git
+git clone [https://github.com/mukulgupta11/devix.git](https://github.com/mukulgupta11/Devix)
 cd devix
 ```
 
@@ -99,7 +97,7 @@ Visit `http://localhost:3000` in your browser.
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 .
@@ -122,7 +120,7 @@ Visit `http://localhost:3000` in your browser.
 
 ---
 
-## 🎯 Keyboard Shortcuts (Editor)
+##  Keyboard Shortcuts (Editor)
 
 * `Ctrl + Space` : Trigger AI code completion / inline suggestions manually.
 * `Tab` : Accept AI suggestion.
@@ -132,7 +130,7 @@ Visit `http://localhost:3000` in your browser.
 
 ---
 
-## ✅ Completed Roadmap
+##  Completed Roadmap
 
 * [x] Google & GitHub Auth via NextAuth
 * [x] Multiple stack templates internally configured
@@ -142,7 +140,7 @@ Visit `http://localhost:3000` in your browser.
 * [x] GitHub repo import tool (clones public repositories straight into workspaces)
 * [x] Save & Load playground state from Database
 
-## 🚀 Future Roadmap
+##  Future Roadmap
 
 * [ ] Real-time multiplayer collaboration
 * [ ] Plugin system for templates/tools
@@ -151,13 +149,13 @@ Visit `http://localhost:3000` in your browser.
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## 🙏 Acknowledgements
+##  Acknowledgements
 
 * [Monaco Editor](https://microsoft.github.io/monaco-editor/)
 * [Google Gemini GenAI SDK](https://ai.google.dev/)
