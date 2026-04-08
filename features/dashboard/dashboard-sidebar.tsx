@@ -255,7 +255,10 @@ export function DashboardSidebar({ initialPlaygroundData, user }: { initialPlayg
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
+                <DropdownMenuItem onClick={async () => {
+                  await signOut({ redirect: false });
+                  window.location.href = "/";
+                }}>
                   <LogOut className="h-4 w-4 mr-2 text-red-500" />
                   <span className="text-red-500">Logout</span>
                 </DropdownMenuItem>
