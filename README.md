@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Features
+##  Features
 
 -  **OAuth Login with NextAuth** – Supports Google & GitHub login via Prisma & MongoDB.
 -  **Modern UI** – Built with Tailwind CSS & Shadcn UI.
