@@ -4,7 +4,7 @@ const app = new Hono();
 
 app.get('/', (c) => c.text('Hello Hono!'));
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 serve({ fetch: app.fetch, port }, () => {
   console.log('Server is running on port ' + port);
 });

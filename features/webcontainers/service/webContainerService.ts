@@ -71,12 +71,20 @@ class WebContainerService {
 
   public teardown(): void {
     if (this.webcontainerInstance) {
-      this.webcontainerInstance.teardown();
+      try {
+        this.webcontainerInstance.teardown();
+      } catch (e) {
+        console.warn("WebContainer teardown error:", e);
+      }
       this.webcontainerInstance = null;
     }
     this.mountPromise = null;
     this.bootPromise = null;
     this.activeUsers = 0;
+  }
+
+  public forceReset(): void {
+    this.teardown();
   }
 
   public onServerReady(callback: (port: number, url: string) => void): void {

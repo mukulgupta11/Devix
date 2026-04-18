@@ -24,6 +24,7 @@ export interface TerminalRef {
   writeToTerminal: (data: string) => void;
   clearTerminal: () => void;
   focusTerminal: () => void;
+  resetTerminal: () => void;
 }
 
 const TerminalComponent = forwardRef<TerminalRef, TerminalProps>(({ 
@@ -122,6 +123,70 @@ const TerminalComponent = forwardRef<TerminalRef, TerminalProps>(({
     focusTerminal: () => {
       if (term.current) {
         term.current.focus();
+      }
+    },
+    resetTerminal: () => {
+      // Kill any running processes
+      if (currentProcess.current) {
+        try { currentProcess.current.kill(); } catch (e) { /* ignore */ }
+        currentProcess.current = null;
+      }
+      if (shellProcess.current) {
+        try { shellProcess.current.kill(); } catch (e) { /* ignore */ }
+        shellProcess.current = null;
+      }
+
+      // Dispose old terminal
+      if (term.current) {
+        term.current.dispose();
+        term.current = null;
+      }
+
+      // Reset all command state
+      currentLine.current = "";
+      cursorPosition.current = 0;
+      commandHistory.current = [];
+      historyIndex.current = -1;
+      setIsConnected(false);
+
+      // Reinitialize fresh terminal
+      if (terminalRef.current) {
+        const terminal = new Terminal({
+          cursorBlink: true,
+          fontFamily: '"Fira Code", "JetBrains Mono", "Consolas", monospace',
+          fontSize: 14,
+          lineHeight: 1.2,
+          letterSpacing: 0,
+          theme: terminalThemes[terminalTheme],
+          allowTransparency: false,
+          convertEol: true,
+          scrollback: 1000,
+          tabStopWidth: 4,
+        });
+
+        const fitAddonInstance = new FitAddon();
+        const webLinksAddon = new WebLinksAddon();
+        const searchAddonInstance = new SearchAddon();
+
+        terminal.loadAddon(fitAddonInstance);
+        terminal.loadAddon(webLinksAddon);
+        terminal.loadAddon(searchAddonInstance);
+
+        terminal.open(terminalRef.current);
+
+        fitAddon.current = fitAddonInstance;
+        searchAddon.current = searchAddonInstance;
+        term.current = terminal;
+
+        terminal.onData(handleTerminalInput);
+
+        setTimeout(() => {
+          fitAddonInstance.fit();
+        }, 100);
+
+        terminal.writeln("🚀 WebContainer Terminal");
+        terminal.writeln("Type 'help' for available commands");
+        writePrompt();
       }
     },
   }));

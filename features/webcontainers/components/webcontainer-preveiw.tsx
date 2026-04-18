@@ -17,7 +17,8 @@ interface WebContainerPreviewProps {
   error: string | null;
   instance: WebContainer | null;
   writeFileSync: (path: string, content: string) => Promise<void>;
-  forceResetup?: boolean; // Optional prop to force re-setup
+  forceResetup?: boolean;
+  projectId?: string; // Track project switches
 }
 
 const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
@@ -28,6 +29,7 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
   serverUrl,
   writeFileSync,
   forceResetup = false,
+  projectId,
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [loadingState, setLoadingState] = useState({
@@ -47,9 +49,54 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
   // Ref to access terminal methods
   const terminalRef = useRef<any>(null);
 
+  // Track the active start process so we can kill it on project switch
+  const startProcessRef = useRef<any>(null);
+
+  // Track previous project ID to detect switches
+  const prevProjectId = useRef<string | undefined>(projectId);
+
+  // Reset everything when project changes
+  useEffect(() => {
+    if (prevProjectId.current !== projectId && prevProjectId.current !== undefined) {
+      console.log(`[Preview] Project switched: ${prevProjectId.current} → ${projectId}. Resetting.`);
+      
+      // Kill any running server process from the old project
+      if (startProcessRef.current) {
+        try { startProcessRef.current.kill(); } catch (e) { /* ignore */ }
+        startProcessRef.current = null;
+      }
+
+      // Reset all state
+      setIsSetupComplete(false);
+      setIsSetupInProgress(false);
+      setPreviewUrl("");
+      setSetupError(null);
+      setCurrentStep(0);
+      setLoadingState({
+        transforming: false,
+        mounting: false,
+        installing: false,
+        starting: false,
+        ready: false,
+      });
+
+      // Reset the terminal (clear all output from old project)
+      if (terminalRef.current?.resetTerminal) {
+        terminalRef.current.resetTerminal();
+      }
+    }
+    prevProjectId.current = projectId;
+  }, [projectId]);
+
   // Reset setup state when forceResetup changes
   useEffect(() => {
     if (forceResetup) {
+      // Kill old server process
+      if (startProcessRef.current) {
+        try { startProcessRef.current.kill(); } catch (e) { /* ignore */ }
+        startProcessRef.current = null;
+      }
+
       setIsSetupComplete(false);
       setIsSetupInProgress(false);
       setPreviewUrl("");
@@ -148,7 +195,7 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           terminalRef.current.writeToTerminal("📦 Installing dependencies...\r\n");
         }
 
-        const installProcess = await instance.spawn("npm", ["install"]);
+        const installProcess = await instance.spawn("npm", ["install", "--no-audit", "--no-fund"]);
 
         // Stream install output to terminal
         installProcess.output.pipeTo(
@@ -199,6 +246,7 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
         }
 
         const startProcess = await instance.spawn("npm", startCommand);
+        startProcessRef.current = startProcess; // Track for cleanup
 
         // Listen for server ready event
         instance.on("server-ready", (port: number, url: string) => {
@@ -250,11 +298,13 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
     setupContainer();
   }, [instance, templateData, isSetupComplete, isSetupInProgress]);
 
-  // Cleanup function to prevent memory leaks
+  // Cleanup function on unmount — kill running processes
   useEffect(() => {
     return () => {
-      // Don't kill processes or cleanup when component unmounts
-      // The WebContainer should persist across component re-mounts
+      if (startProcessRef.current) {
+        try { startProcessRef.current.kill(); } catch (e) { /* ignore */ }
+        startProcessRef.current = null;
+      }
     };
   }, []);
 

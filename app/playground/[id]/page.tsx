@@ -96,7 +96,7 @@ const MainPlaygroundPage: React.FC = () => {
     instance,
     writeFileSync,
     // @ts-ignore
-  } = useWebContainer({ templateData });
+  } = useWebContainer({ templateData, projectId: id as string });
 
   const lastSyncedContent = useRef<Map<string, string>>(new Map());
 
@@ -543,6 +543,7 @@ const MainPlaygroundPage: React.FC = () => {
                             error={containerError}
                             serverUrl={serverUrl!}
                             forceResetup={false}
+                            projectId={id as string}
                           />
                         </ResizablePanel>
                       </>
