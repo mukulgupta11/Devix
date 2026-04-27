@@ -38,3 +38,9 @@ export const authRoutes: string[] = [
 export const apiAuthPrefix: string = "/api/auth"
 
 export const DEFAULT_LOGIN_REDIRECT = "/dashboard"; // Changed to redirect to dashboard after login
+
+/**
+ * Route for logout - should not redirect logged-in users
+ * @type {string}
+ */
+export const logoutRoute: string = "/auth/logout"
