@@ -1,7 +1,7 @@
 "use client"
 
 import { useTheme } from "next-themes"
-import { signOut } from "next-auth/react"
+import { logout } from "@/features/auth/actions"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -256,8 +256,7 @@ export function DashboardSidebar({ initialPlaygroundData, user }: { initialPlayg
                 </DropdownMenuSub>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={async () => {
-                  await signOut({ redirect: false });
-                  window.location.href = "/";
+                  await logout();
                 }}>
                   <LogOut className="h-4 w-4 mr-2 text-red-500" />
                   <span className="text-red-500">Logout</span>

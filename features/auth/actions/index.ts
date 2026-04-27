@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { db } from "@/lib/db";
 
 
@@ -34,4 +34,8 @@ export const getAccountByUserId = async (userId:string)=>{
 export const currentUser = async()=>{
     const user = await auth()
     return user?.user;
+}
+
+export const logout = async () => {
+    await signOut({ redirectTo: "/" });
 }
