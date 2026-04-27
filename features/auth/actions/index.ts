@@ -37,5 +37,8 @@ export const currentUser = async()=>{
 }
 
 export const logout = async () => {
-    await signOut({ redirectTo: "/" });
+    // Sign out without immediate redirect - this clears the session cookie
+    await signOut({ redirect: false });
+    // Now redirect to home page (which is public, no auth redirect will happen)
+    return { success: true };
 }
