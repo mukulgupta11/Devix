@@ -13,9 +13,8 @@ const LogoutButton = ({children}:LogoutButtonProps) => {
         e.stopPropagation();
         // Clear the session first
         await logout();
-        // Then redirect after session is confirmed cleared
-        router.push('/');
-        router.refresh();
+        // Force a hard reload to the home page to clear all client-side caches
+        window.location.href = "/";
     }
 
   return (
