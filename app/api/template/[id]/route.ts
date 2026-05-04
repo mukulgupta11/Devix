@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { templatePaths } from "@/lib/template";
 import path from "path";
 import fs from "fs/promises";
+import os from "os";
 import { NextRequest } from "next/server";
 
 // Helper function to ensure valid JSON
@@ -44,7 +45,7 @@ export async function GET(
 
   try {
     const inputPath = path.join(process.cwd(), templatePath);
-    const outputFile = path.join(process.cwd(), `output/${templateKey}.json`);
+    const outputFile = path.join(os.tmpdir(), `template-${templateKey}-${id}.json`);
 
     console.log("Input Path:", inputPath);
     console.log("Output Path:", outputFile);

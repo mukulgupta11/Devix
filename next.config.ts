@@ -42,6 +42,11 @@ const nextConfig: NextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/template/[id]': ['./vibecode-starters/**/*'],
+    },
+  },
 };
 
 export default nextConfig;
