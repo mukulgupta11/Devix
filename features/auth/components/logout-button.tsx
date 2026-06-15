@@ -2,13 +2,12 @@
 
 import React from 'react'
 import { LogoutButtonProps } from '../types'
-import { signOut } from 'next-auth/react';
 
 const LogoutButton = ({children}:LogoutButtonProps) => {
-    const onLogout = async (e: React.MouseEvent) => {
+    const onLogout = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        await signOut({ redirectTo: "/" });
+        window.location.assign("/auth/logout");
     }
 
   return (
