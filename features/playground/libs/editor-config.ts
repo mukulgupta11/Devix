@@ -129,15 +129,15 @@ export const configureMonaco = (monaco: Monaco, theme: string = "dark") => {
     ],
     colors: {
       // Editor background
-      "editor.background": "#0D1117",
-      "editor.foreground": "#E6EDF3",
+      "editor.background": "#0E0E0C",
+      "editor.foreground": "#EDE9E0",
       
       // Line numbers
-      "editorLineNumber.foreground": "#7D8590",
-      "editorLineNumber.activeForeground": "#F0F6FC",
+      "editorLineNumber.foreground": "#4F4D47",
+      "editorLineNumber.activeForeground": "#BDB8AD",
       
       // Cursor
-      "editorCursor.foreground": "#F0F6FC",
+      "editorCursor.foreground": "#FF7043",
       
       // Selection
       "editor.selectionBackground": "#264F78",
@@ -145,11 +145,11 @@ export const configureMonaco = (monaco: Monaco, theme: string = "dark") => {
       "editor.inactiveSelectionBackground": "#3A3D41",
       
       // Current line
-      "editor.lineHighlightBackground": "#21262D",
-      "editor.lineHighlightBorder": "#30363D",
+      "editor.lineHighlightBackground": "#161613",
+      "editor.lineHighlightBorder": "#24231F",
       
       // Gutter
-      "editorGutter.background": "#0D1117",
+      "editorGutter.background": "#0E0E0C",
       "editorGutter.modifiedBackground": "#BB800966",
       "editorGutter.addedBackground": "#347D3966",
       "editorGutter.deletedBackground": "#F8514966",
@@ -161,7 +161,7 @@ export const configureMonaco = (monaco: Monaco, theme: string = "dark") => {
       "scrollbarSlider.activeBackground": "#6E7681BB",
       
       // Minimap
-      "minimap.background": "#161B22",
+      "minimap.background": "#11110F",
       "minimap.selectionHighlight": "#264F78",
       
       // Find/Replace
@@ -204,16 +204,16 @@ export const configureMonaco = (monaco: Monaco, theme: string = "dark") => {
       "editorHoverWidget.border": "#30363D",
       
       // Panel
-      "panel.background": "#0D1117",
-      "panel.border": "#30363D",
+      "panel.background": "#0E0E0C",
+      "panel.border": "#2D2C27",
       
       // Activity bar
-      "activityBar.background": "#0D1117",
+      "activityBar.background": "#0E0E0C",
       "activityBar.foreground": "#E6EDF3",
       "activityBar.border": "#30363D",
       
       // Side bar
-      "sideBar.background": "#0D1117",
+      "sideBar.background": "#11110F",
       "sideBar.foreground": "#E6EDF3",
       "sideBar.border": "#30363D",
     },
@@ -316,7 +316,7 @@ export const defaultEditorOptions = {
   suggestOnTriggerCharacters: true,
   acceptSuggestionOnEnter: "on" as const,
   tabCompletion: "on" as const,
-  wordBasedSuggestions: true,
+  wordBasedSuggestions: "currentDocument" as const,
   quickSuggestions: {
     other: true,
     comments: false,

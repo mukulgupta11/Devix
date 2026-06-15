@@ -152,10 +152,12 @@ export function TemplateFileTree({
   }
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>{title}</SidebarGroupLabel>
+    <Sidebar className="border-r border-white/8 bg-[#11110f]">
+      <SidebarContent className="bg-[#11110f]">
+        <SidebarGroup className="px-2 pt-3">
+          <SidebarGroupLabel className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/35">
+            {title}
+          </SidebarGroupLabel>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarGroupAction>
@@ -173,7 +175,7 @@ export function TemplateFileTree({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="mt-2">
             <SidebarMenu>
               {isRootFolder ? (
                 sortItems((data as TemplateFolder).items).map((child, index) => (
@@ -293,7 +295,11 @@ function TemplateNode({
     return (
       <SidebarMenuItem>
         <div className="flex items-center group">
-          <SidebarMenuButton isActive={isSelected} onClick={() => onFileSelect?.(file)} className="flex-1">
+          <SidebarMenuButton
+            isActive={isSelected}
+            onClick={() => onFileSelect?.(file)}
+            className="h-8 flex-1 font-mono text-[10px] text-white/45 data-[active=true]:bg-white/8 data-[active=true]:text-white/85"
+          >
             <File className="h-4 w-4 mr-2 shrink-0" />
             <span>{fileName}</span>
           </SidebarMenuButton>
@@ -405,7 +411,7 @@ function TemplateNode({
         >
           <div className="flex items-center group">
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton className="flex-1">
+              <SidebarMenuButton className="h-8 flex-1 font-mono text-[10px] text-white/45 hover:text-white/80">
                 <ChevronRight className="transition-transform" />
                 <Folder className="h-4 w-4 mr-2 shrink-0" />
                 <span>{folderName}</span>
@@ -500,4 +506,3 @@ function TemplateNode({
     )
   }
 }
-

@@ -310,12 +310,12 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center space-y-4 max-w-md p-6 rounded-lg bg-gray-50 dark:bg-gray-900">
-          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
-          <h3 className="text-lg font-medium">Initializing WebContainer</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Setting up the environment for your project...
+      <div className="flex h-full items-center justify-center bg-[#151512]">
+        <div className="max-w-sm space-y-4 rounded-xl border border-white/8 bg-white/[0.025] p-6 text-center">
+          <Loader2 className="mx-auto size-7 animate-spin text-[#ff7043]" />
+          <h3 className="text-sm font-medium text-white/75">Starting runtime</h3>
+          <p className="text-xs leading-5 text-white/35">
+            Preparing an isolated browser environment for this project.
           </p>
         </div>
       </div>
@@ -324,13 +324,13 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
 
   if (error || setupError) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-6 rounded-lg max-w-md">
-          <div className="flex items-center gap-2 mb-3">
-            <XCircle className="h-5 w-5" />
-            <h3 className="font-semibold">Error</h3>
+      <div className="flex h-full items-center justify-center bg-[#151512]">
+        <div className="max-w-md rounded-xl border border-red-400/20 bg-red-400/5 p-6 text-red-300">
+          <div className="mb-3 flex items-center gap-2">
+            <XCircle className="size-5" />
+            <h3 className="text-sm font-semibold">Runtime failed to start</h3>
           </div>
-          <p className="text-sm">{error || setupError}</p>
+          <p className="text-xs leading-5 text-red-200/60">{error || setupError}</p>
         </div>
       </div>
     );
@@ -361,10 +361,14 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
   };
 
   return (
-    <div className="h-full w-full flex flex-col">
+    <div className="flex h-full w-full flex-col bg-[#151512]">
       {!previewUrl ? (
-        <div className="h-full flex flex-col">
-          <div className="w-full max-w-md p-6 m-5 rounded-lg bg-white dark:bg-zinc-800 shadow-sm mx-auto">
+        <div className="flex h-full flex-col">
+          <div className="mx-auto m-5 w-full max-w-md rounded-xl border border-white/8 bg-white/[0.025] p-6">
+            <div className="mb-5">
+              <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/30">Runtime setup</p>
+              <h3 className="mt-2 text-sm font-medium text-white/75">Preparing live preview</h3>
+            </div>
 
 
             <Progress
@@ -393,7 +397,7 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           </div>
 
           {/* Terminal */}
-          <div className="flex-1 p-4">
+          <div className="min-h-0 flex-1 border-t border-white/8 p-3">
             <TerminalComponent
               ref={terminalRef}
               webContainerInstance={instance}
@@ -403,14 +407,14 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           </div>
         </div>
       ) : (
-        <div className="h-full flex flex-col relative">
+        <div className="relative flex h-full flex-col">
           {/* Terminal Toggle Button */}
-          <div className="absolute top-2 right-4 z-10 transition-opacity opacity-60 hover:opacity-100">
+          <div className="absolute right-3 top-3 z-10 opacity-70 transition-opacity hover:opacity-100">
             <Button
               variant="secondary"
               size="sm"
               onClick={() => setIsTerminalOpen(!isTerminalOpen)}
-              className="gap-2 shadow-sm border border-border/50 h-8"
+              className="h-8 gap-2 border border-black/10 bg-white/90 text-[#24231e] shadow-none hover:bg-white"
             >
               <TerminalIcon className="h-3.5 w-3.5" />
               <span className="text-xs">{isTerminalOpen ? "Hide Terminal" : "Show Terminal"}</span>
@@ -418,7 +422,7 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           </div>
 
           {/* Preview */}
-          <div className="flex-1 min-h-0">
+          <div className="min-h-0 flex-1 bg-white">
             <iframe
               src={previewUrl}
               className="w-full h-full border-none"
@@ -427,7 +431,7 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           </div>
 
           {/* Terminal at bottom when preview is ready */}
-          <div className={`h-64 border-t shrink-0 ${!isTerminalOpen ? "hidden" : ""}`}>
+          <div className={`h-56 shrink-0 border-t border-white/8 ${!isTerminalOpen ? "hidden" : ""}`}>
             <TerminalComponent
               ref={terminalRef}
               webContainerInstance={instance}

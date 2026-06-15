@@ -6,8 +6,10 @@ import type { TemplateFolder } from '@/features/playground/libs/path-to-json';
 
 interface PlaygroundData {
   id: string;
-  name?: string;
-  [key: string]: any;
+  title: string;
+  description?: string | null;
+  template: string;
+  updatedAt: Date;
 }
 
 interface UsePlaygroundReturn {
@@ -33,14 +35,31 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       setError(null);
 
       const data = await getPlaygroundById(id);
-    //   @ts-ignore
-      setPlaygroundData(data);
+      if (!data) {
+        throw new Error("Playground not found");
+      }
+      setPlaygroundData({
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        template: data.template,
+        updatedAt: data.updatedAt,
+      });
 
       const rawContent = data?.templateFiles?.[0]?.content;
       if (typeof rawContent === "string") {
         const parsedContent = JSON.parse(rawContent);
         setTemplateData(parsedContent);
         toast.success("Playground loaded successfully");
+        return;
+      }
+      if (
+        rawContent &&
+        typeof rawContent === "object" &&
+        "folderName" in rawContent &&
+        "items" in rawContent
+      ) {
+        setTemplateData(rawContent as unknown as TemplateFolder);
         return;
       }
 

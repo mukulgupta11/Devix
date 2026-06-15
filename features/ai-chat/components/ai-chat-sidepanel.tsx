@@ -342,6 +342,36 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
     return () => clearTimeout(timeoutId);
   }, [messages, isLoading]);
 
+  useEffect(() => {
+    if (!isOpen || messages.length > 0) return;
+
+    let cancelled = false;
+    const loadHistory = async () => {
+      try {
+        const response = await fetch("/api/chat");
+        if (!response.ok) return;
+        const data = await response.json();
+        if (cancelled || !Array.isArray(data.history)) return;
+        setMessages(
+          data.history.map((message: any) => ({
+            id: message.id,
+            role: message.role,
+            content: message.content,
+            timestamp: new Date(message.createdAt),
+            type: "chat",
+          }))
+        );
+      } catch (error) {
+        console.error("Failed to load chat history:", error);
+      }
+    };
+
+    loadHistory();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, messages.length]);
+
   // Enhanced language detection with more file types
   const detectLanguage = (fileName: string, content: string): string => {
     const ext = fileName.split(".").pop()?.toLowerCase();
@@ -749,6 +779,7 @@ export const AIChatSidePanel: React.FC<AIChatSidePanelProps> = ({
         },
         body: JSON.stringify({
           message: contextualMessage,
+          displayMessage: input.trim(),
           history: messages.slice(-10).map((msg) => ({
             role: msg.role,
             content: msg.content,

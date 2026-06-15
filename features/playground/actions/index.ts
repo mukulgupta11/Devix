@@ -1,201 +1,199 @@
-"use server"
-import { currentUser } from "@/features/auth/actions";
-import { db } from "@/lib/db"
-import { TemplateFolder } from "../libs/path-to-json";
+"use server";
+
+import type { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { currentUser } from "@/features/auth/actions";
+import { db } from "@/lib/db";
+import type { TemplateFolder } from "../libs/path-to-json";
 
-
-// Toggle marked status for a problem
-export const toggleStarMarked = async (playgroundId: string, isChecked: boolean) => {
-    const user = await currentUser();
-    const userId = user?.id;
-  if (!userId) {
-    throw new Error("User ID is required");
-  }
-
-  try {
-    if (isChecked) {
-      await db.starMark.create({
-        data: {
-          userId: userId!,
-          playgroundId,
-          isMarked: isChecked,
-        },
-      });
-    } else {
-      await db.starMark.delete({
-        where: {
-          userId_playgroundId: {
-            userId,
-            playgroundId: playgroundId,
-
-          },
-        },
-      });
-    }
-
-    revalidatePath("/dashboard");
-    return { success: true, isMarked: isChecked };
-  } catch (error) {
-    console.error("Error updating problem:", error);
-    return { success: false, error: "Failed to update problem" };
-  }
-};
-
-export const createPlayground = async (data:{
-    title: string;
-    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
-    description?: string;
-  })=>{
-    const {template , title , description} = data;
-
-    const user = await currentUser();
-    try {
-        const playground = await db.playground.create({
-            data:{
-                title:title,
-                description:description,
-                template:template,
-                userId:user?.id!
-            }
-        })
-
-        return playground;
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-
-export const getAllPlaygroundForUser = async ()=>{
-    const user = await currentUser();
-    try {
-        const user  = await currentUser();
-        const playground = await db.playground.findMany({
-            where:{
-                userId:user?.id!
-            },
-            include:{
-                user:true,
-                Starmark:{
-                    where:{
-                        userId:user?.id!
-                    },
-                    select:{
-                        isMarked:true
-                    }
-                }
-            }
-        })
-      
-        return playground;
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-export const getPlaygroundById = async (id:string)=>{
-    try {
-        const playground = await db.playground.findUnique({
-            where:{id},
-            select:{
-              templateFiles:{
-                select:{
-                  content:true
-                }
-              }
-            }
-        })
-        return playground;
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-export const SaveUpdatedCode = async (playgroundId: string, data: TemplateFolder) => {
+async function requireUser() {
   const user = await currentUser();
-  if (!user) return null;
+  const userId = user?.id;
+  if (!userId) {
+    throw new Error("You must be signed in to continue.");
+  }
+  return { ...user, id: userId };
+}
 
-  try {
-    const updatedPlayground = await db.templateFile.upsert({
+async function requireOwnedPlayground(id: string) {
+  const user = await requireUser();
+  const playground = await db.playground.findFirst({
+    where: { id, userId: user.id },
+  });
+
+  if (!playground) {
+    throw new Error("Playground not found.");
+  }
+
+  return { user, playground };
+}
+
+export const toggleStarMarked = async (
+  playgroundId: string,
+  isChecked: boolean
+) => {
+  const { user } = await requireOwnedPlayground(playgroundId);
+
+  if (isChecked) {
+    await db.starMark.upsert({
       where: {
-        playgroundId, // now allowed since playgroundId is unique
+        userId_playgroundId: {
+          userId: user.id,
+          playgroundId,
+        },
       },
-      update: {
-        content: JSON.stringify(data),
-      },
+      update: { isMarked: true },
       create: {
+        userId: user.id,
         playgroundId,
-        content: JSON.stringify(data),
+        isMarked: true,
       },
     });
-
-    return updatedPlayground;
-  } catch (error) {
-    console.log("SaveUpdatedCode error:", error);
-    return null;
+  } else {
+    await db.starMark.deleteMany({
+      where: {
+        userId: user.id,
+        playgroundId,
+      },
+    });
   }
+
+  revalidatePath("/dashboard");
+  return { success: true, isMarked: isChecked };
 };
 
-export const deleteProjectById = async (id:string)=>{
-    try {
-        await db.playground.delete({
-            where:{id}
-        })
-        revalidatePath("/dashboard")
-    } catch (error) {
-        console.log(error)
-    }
-}
+export const createPlayground = async (data: {
+  title: string;
+  template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
+  description?: string;
+}) => {
+  const user = await requireUser();
+  const title = data.title.trim();
 
+  if (!title) {
+    throw new Error("Project title is required.");
+  }
 
-export const editProjectById = async (id:string,data:{title:string , description:string})=>{
-    try {
-        await db.playground.update({
-            where:{id},
-            data:data
-        })
-        revalidatePath("/dashboard")
-    } catch (error) {
-        console.log(error)
-    }
-}
+  return db.playground.create({
+    data: {
+      title,
+      description: data.description?.trim() || null,
+      template: data.template,
+      userId: user.id,
+    },
+  });
+};
+
+export const getAllPlaygroundForUser = async () => {
+  const user = await requireUser();
+
+  return db.playground.findMany({
+    where: { userId: user.id },
+    include: {
+      user: true,
+      Starmark: {
+        where: { userId: user.id },
+        select: { isMarked: true },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+};
+
+export const getPlaygroundById = async (id: string) => {
+  const user = await requireUser();
+
+  return db.playground.findFirst({
+    where: { id, userId: user.id },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      template: true,
+      createdAt: true,
+      updatedAt: true,
+      templateFiles: {
+        select: { content: true },
+      },
+    },
+  });
+};
+
+export const SaveUpdatedCode = async (
+  playgroundId: string,
+  data: TemplateFolder
+) => {
+  await requireOwnedPlayground(playgroundId);
+
+  return db.templateFile.upsert({
+    where: { playgroundId },
+    update: {
+      content: data as unknown as Prisma.InputJsonValue,
+    },
+    create: {
+      playgroundId,
+      content: data as unknown as Prisma.InputJsonValue,
+    },
+  });
+};
+
+export const deleteProjectById = async (id: string) => {
+  await requireOwnedPlayground(id);
+  await db.playground.delete({ where: { id } });
+  revalidatePath("/dashboard");
+  return { success: true };
+};
+
+export const editProjectById = async (
+  id: string,
+  data: { title: string; description: string }
+) => {
+  await requireOwnedPlayground(id);
+  const title = data.title.trim();
+
+  if (!title) {
+    throw new Error("Project title is required.");
+  }
+
+  await db.playground.update({
+    where: { id },
+    data: {
+      title,
+      description: data.description.trim() || null,
+    },
+  });
+  revalidatePath("/dashboard");
+  return { success: true };
+};
 
 export const duplicateProjectById = async (id: string) => {
-    try {
-        // Fetch the original playground data
-        const originalPlayground = await db.playground.findUnique({
-            where: { id },
-            include: {
-                templateFiles: true, // Include related template files
-            },
-        });
+  const { user } = await requireOwnedPlayground(id);
+  const originalPlayground = await db.playground.findFirst({
+    where: { id, userId: user.id },
+    include: { templateFiles: true },
+  });
 
-        if (!originalPlayground) {
-            throw new Error("Original playground not found");
-        }
+  if (!originalPlayground) {
+    throw new Error("Original playground not found.");
+  }
 
-        // Create a new playground with the same data but a new ID
-        const duplicatedPlayground = await db.playground.create({
-            data: {
-                title: `${originalPlayground.title} (Copy)`,
-                description: originalPlayground.description,
-                template: originalPlayground.template,
-                userId: originalPlayground.userId,
-                templateFiles: {
-                  // @ts-ignore
-                    create: originalPlayground.templateFiles.map((file) => ({
-                        content: file.content,
-                    })),
-                },
-            },
-        });
+  const duplicatedPlayground = await db.playground.create({
+    data: {
+      title: `${originalPlayground.title} (Copy)`,
+      description: originalPlayground.description,
+      template: originalPlayground.template,
+      userId: user.id,
+      templateFiles:
+        originalPlayground.templateFiles.length > 0
+          ? {
+              create: originalPlayground.templateFiles.map((file) => ({
+                content: file.content as Prisma.InputJsonValue,
+              })),
+            }
+          : undefined,
+    },
+  });
 
-        // Revalidate the dashboard path to reflect the changes
-        revalidatePath("/dashboard");
-
-        return duplicatedPlayground;
-    } catch (error) {
-        console.error("Error duplicating project:", error);
-    }
+  revalidatePath("/dashboard");
+  return duplicatedPlayground;
 };

@@ -38,11 +38,13 @@ interface FileExplorerState {
   handleDeleteFile: (
     file: TemplateFile, 
     parentPath: string, 
+    instance: any,
     saveTemplateData: (data: TemplateFolder) => Promise<void>
   ) => Promise<void>;
   handleDeleteFolder: (
     folder: TemplateFolder,
     parentPath: string,
+    instance: any,
     saveTemplateData: (data: TemplateFolder) => Promise<void>
   ) => Promise<void>;
   handleRenameFile: (
@@ -50,12 +52,14 @@ interface FileExplorerState {
     newFilename: string,
     newExtension: string,
     parentPath: string,
+    instance: any,
     saveTemplateData: (data: TemplateFolder) => Promise<void>
   ) => Promise<void>;
   handleRenameFolder: (
     folder: TemplateFolder,
     newFolderName: string,
     parentPath: string,
+    instance: any,
     saveTemplateData: (data: TemplateFolder) => Promise<void>
   ) => Promise<void>;
   updateFileContent: (fileId: string, content: string) => void;
@@ -172,6 +176,17 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
         }
       }
 
+      const fileExists = currentFolder.items.some(
+        (item) =>
+          "filename" in item &&
+          item.filename === newFile.filename &&
+          item.fileExtension === newFile.fileExtension
+      );
+      if (fileExists) {
+        toast.error("A file with that name already exists");
+        return;
+      }
+
       currentFolder.items.push(newFile);
       set({ templateData: updatedTemplateData });
       toast.success(`Created file: ${newFile.filename}.${newFile.fileExtension}`);
@@ -212,6 +227,16 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
         }
       }
 
+      if (
+        currentFolder.items.some(
+          (item) =>
+            "folderName" in item && item.folderName === newFolder.folderName
+        )
+      ) {
+        toast.error("A folder with that name already exists");
+        return;
+      }
+
       currentFolder.items.push(newFolder);
       set({ templateData: updatedTemplateData });
       toast.success(`Created folder: ${newFolder.folderName}`);
@@ -232,7 +257,7 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
     }
   },
 
-  handleDeleteFile: async (file, parentPath, saveTemplateData) => {
+  handleDeleteFile: async (file, parentPath, instance, saveTemplateData) => {
     const { templateData, openFiles } = get();
     if (!templateData) return;
 
@@ -273,6 +298,16 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
 
       // Use the passed saveTemplateData function
       await saveTemplateData(updatedTemplateData);
+      if (instance?.fs) {
+        const filePath = parentPath
+          ? `${parentPath}/${file.filename}.${file.fileExtension}`
+          : `${file.filename}.${file.fileExtension}`;
+        try {
+          await instance.fs.rm(filePath);
+        } catch (error) {
+          console.warn("Runtime file removal skipped:", error);
+        }
+      }
       toast.success(`Deleted file: ${file.filename}.${file.fileExtension}`);
     } catch (error) {
       console.error("Error deleting file:", error);
@@ -280,7 +315,7 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
     }
   },
 
-  handleDeleteFolder: async (folder, parentPath, saveTemplateData) => {
+  handleDeleteFolder: async (folder, parentPath, instance, saveTemplateData) => {
     const { templateData } = get();
     if (!templateData) return;
 
@@ -325,6 +360,16 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
 
       // Use the passed saveTemplateData function
       await saveTemplateData(updatedTemplateData);
+      if (instance?.fs) {
+        const folderPath = parentPath
+          ? `${parentPath}/${folder.folderName}`
+          : folder.folderName;
+        try {
+          await instance.fs.rm(folderPath, { recursive: true });
+        } catch (error) {
+          console.warn("Runtime folder removal skipped:", error);
+        }
+      }
       toast.success(`Deleted folder: ${folder.folderName}`);
     } catch (error) {
       console.error("Error deleting folder:", error);
@@ -337,15 +382,14 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
     newFilename,
     newExtension,
     parentPath,
+    instance,
     saveTemplateData
   ) => {
     const { templateData, openFiles, activeFileId } = get();
     if (!templateData) return;
 
-    // Generate old and new file IDs using the same logic as openFile
+    // Generate the old file ID before updating the tree.
     const oldFileId = generateFileId(file, templateData);
-    const newFile = { ...file, filename: newFilename, fileExtension: newExtension };
-    const newFileId = generateFileId(newFile, templateData);
 
     try {
       const updatedTemplateData = JSON.parse(
@@ -371,12 +415,25 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
       );
 
       if (fileIndex !== -1) {
+        const nameConflict = currentFolder.items.some(
+          (item, index) =>
+            index !== fileIndex &&
+            "filename" in item &&
+            item.filename === newFilename &&
+            item.fileExtension === newExtension
+        );
+        if (nameConflict) {
+          toast.error("A file with that name already exists");
+          return;
+        }
+
         const updatedFile = {
           ...currentFolder.items[fileIndex],
           filename: newFilename,
           fileExtension: newExtension,
         } as TemplateFile;
         currentFolder.items[fileIndex] = updatedFile;
+        const newFileId = generateFileId(updatedFile, updatedTemplateData);
 
         // Update open files with new ID and names
         const updatedOpenFiles = openFiles.map((f) =>
@@ -398,6 +455,19 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
 
         // Use the passed saveTemplateData function
         await saveTemplateData(updatedTemplateData);
+        if (instance?.fs) {
+          const oldPath = parentPath
+            ? `${parentPath}/${file.filename}.${file.fileExtension}`
+            : `${file.filename}.${file.fileExtension}`;
+          const newPath = parentPath
+            ? `${parentPath}/${newFilename}.${newExtension}`
+            : `${newFilename}.${newExtension}`;
+          try {
+            await instance.fs.rename(oldPath, newPath);
+          } catch (error) {
+            console.warn("Runtime file rename skipped:", error);
+          }
+        }
         toast.success(`Renamed file to: ${newFilename}.${newExtension}`);
       }
     } catch (error) {
@@ -406,8 +476,14 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
     }
   },
 
-  handleRenameFolder: async (folder, newFolderName, parentPath, saveTemplateData) => {
-    const { templateData } = get();
+  handleRenameFolder: async (
+    folder,
+    newFolderName,
+    parentPath,
+    instance,
+    saveTemplateData
+  ) => {
+    const { templateData, openFiles, activeFileId } = get();
     if (!templateData) return;
 
     try {
@@ -431,16 +507,53 @@ export const useFileExplorer = create<FileExplorerState>((set, get) => ({
       );
 
       if (folderIndex !== -1) {
+        const nameConflict = currentFolder.items.some(
+          (item, index) =>
+            index !== folderIndex &&
+            "folderName" in item &&
+            item.folderName === newFolderName
+        );
+        if (nameConflict) {
+          toast.error("A folder with that name already exists");
+          return;
+        }
+
         const updatedFolder = {
           ...currentFolder.items[folderIndex],
           folderName: newFolderName,
         } as TemplateFolder;
         currentFolder.items[folderIndex] = updatedFolder;
 
-        set({ templateData: updatedTemplateData });
+        const updatedOpenFiles = openFiles.map((file) => ({
+          ...file,
+          id: generateFileId(file, updatedTemplateData),
+        }));
+        const activeFile = openFiles.find((file) => file.id === activeFileId);
+        const nextActiveFileId = activeFile
+          ? generateFileId(activeFile, updatedTemplateData)
+          : activeFileId;
+
+        set({
+          templateData: updatedTemplateData,
+          openFiles: updatedOpenFiles,
+          activeFileId: nextActiveFileId,
+        });
 
         // Use the passed saveTemplateData function
         await saveTemplateData(updatedTemplateData);
+        if (instance?.fs) {
+          const oldPath = parentPath
+            ? `${parentPath}/${folder.folderName}`
+            : folder.folderName;
+          const newPath = parentPath
+            ? `${parentPath}/${newFolderName}`
+            : newFolderName;
+          try {
+            await instance.fs.rename(oldPath, newPath);
+          } catch (error) {
+            console.warn("Runtime folder rename skipped:", error);
+          }
+        }
         toast.success(`Renamed folder to: ${newFolderName}`);
       }
     } catch (error) {

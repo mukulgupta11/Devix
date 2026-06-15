@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 // TemplateSelectionModal.tsx
 type TemplateSelectionModalProps = {
@@ -286,8 +287,14 @@ const TemplateSelectionModal = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {filteredTemplates.length > 0 ? (
                     filteredTemplates.map((template) => (
-                      <div
+                      <motion.div
                         key={template.id}
+                        layout
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ y: -4, scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 28 }}
                         className={`relative flex p-6 border rounded-lg cursor-pointer
                           transition-all duration-300 hover:scale-[1.02]
                           ${
@@ -301,11 +308,18 @@ const TemplateSelectionModal = ({
                           {renderStars(template.popularity)}
                         </div>
 
-                        {selectedTemplate === template.id && (
-                          <div className="absolute top-2 left-2 bg-blue-500 text-white rounded-full p-1">
-                            <Check size={14} />
-                          </div>
-                        )}
+                        <AnimatePresence>
+                          {selectedTemplate === template.id && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+                              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                              exit={{ opacity: 0, scale: 0.5 }}
+                              className="absolute left-2 top-2 rounded-full bg-primary p-1 text-primary-foreground"
+                            >
+                              <Check size={14} />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
                         <div className="flex gap-4">
                           <div
@@ -367,7 +381,7 @@ const TemplateSelectionModal = ({
                           id={template.id}
                           className="sr-only"
                         />
-                      </div>
+                      </motion.div>
                     ))
                   ) : (
                     <div className="col-span-2 flex flex-col items-center justify-center p-8 text-center">

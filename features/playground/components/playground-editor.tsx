@@ -5,6 +5,7 @@ import Editor, { type Monaco } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
 import { configureMonaco, defaultEditorOptions, getEditorLanguage } from "@/features/playground/libs/editor-config"
 import type { TemplateFile } from "@/features/playground/libs/path-to-json"
+import { AnimatePresence, motion } from "framer-motion"
 
 interface PlaygroundEditorProps {
   activeFile: TemplateFile | undefined
@@ -16,6 +17,7 @@ interface PlaygroundEditorProps {
   onAcceptSuggestion: (editor: any, monaco: any) => void
   onRejectSuggestion: (editor: any) => void
   onTriggerSuggestion: (type: string, editor: any) => void
+  onCursorPositionChange?: (position: { line: number; column: number }) => void
 }
 
 export const PlaygroundEditor = ({
@@ -28,6 +30,7 @@ export const PlaygroundEditor = ({
   onAcceptSuggestion,
   onRejectSuggestion,
   onTriggerSuggestion,
+  onCursorPositionChange,
 }: PlaygroundEditorProps) => {
   const editorRef = useRef<any>(null)
   const monacoRef = useRef<Monaco | null>(null)
@@ -406,6 +409,10 @@ export const PlaygroundEditor = ({
       if (isAcceptingSuggestionRef.current) return
 
       const newPosition = e.position
+      onCursorPositionChange?.({
+        line: newPosition.lineNumber,
+        column: newPosition.column,
+      })
 
       // Clear existing suggestion if cursor moved away
       if (currentSuggestionRef.current && !suggestionAcceptedRef.current) {
@@ -527,22 +534,33 @@ export const PlaygroundEditor = ({
   }, [])
 
   return (
-    <div className="h-full relative">
+    <div className="relative h-full bg-[#0e0e0c]">
       {/* Loading indicator */}
-      {suggestionLoading && (
-        <div className="absolute top-2 right-2 z-10 bg-red-100 dark:bg-red-900 px-2 py-1 rounded text-xs text-red-700 dark:text-red-300 flex items-center gap-1">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          AI thinking...
-        </div>
-      )}
-
-      {/* Active suggestion indicator */}
-      {currentSuggestionRef.current && !suggestionLoading && (
-        <div className="absolute top-2 right-2 z-10 bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-xs text-green-700 dark:text-green-300 flex items-center gap-1">
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-          Press Tab to accept
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {suggestionLoading ? (
+          <motion.div
+            key="thinking"
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.96 }}
+            className="absolute right-3 top-3 z-10 flex items-center gap-2 rounded-full border border-[#dfa88f]/20 bg-[#dfa88f]/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-[#e9bda8] backdrop-blur"
+          >
+            <div className="size-1.5 animate-pulse rounded-full bg-[#dfa88f]" />
+            AI thinking
+          </motion.div>
+        ) : currentSuggestionRef.current ? (
+          <motion.div
+            key="ready"
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.96 }}
+            className="absolute right-3 top-3 z-10 flex items-center gap-2 rounded-full border border-[#9fc9a2]/20 bg-[#9fc9a2]/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-[#b8d8bb] backdrop-blur"
+          >
+            <div className="size-1.5 rounded-full bg-[#9fc9a2]" />
+            Press Tab to accept
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <Editor
         height="100%"

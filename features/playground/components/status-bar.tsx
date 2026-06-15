@@ -28,12 +28,12 @@ export function StatusBar({
   lastSaved,
 }: StatusBarProps) {
   return (
-    <div className="h-6 bg-muted/50 border-t flex items-center justify-between px-4 text-xs">
+    <div className="flex h-6 items-center justify-between border-t border-white/8 bg-[#0c0c0a] px-3 font-mono text-[9px] text-white/35">
       <div className="flex items-center gap-4">
         {/* Connection Status */}
         <div className="flex items-center gap-1">
           {isConnected ? <Wifi className="h-3 w-3 text-green-500" /> : <WifiOff className="h-3 w-3 text-red-500" />}
-          <span className={isConnected ? "text-green-600" : "text-red-600"}>
+          <span className={isConnected ? "text-[#9fc9a2]" : "text-red-400"}>
             {isConnected ? "Connected" : "Disconnected"}
           </span>
         </div>
@@ -51,7 +51,7 @@ export function StatusBar({
         {/* Unsaved Changes */}
         {hasUnsavedChanges && (
           <>
-            <div className="flex items-center gap-1 text-amber-600">
+            <div className="flex items-center gap-1 text-[#dfa88f]">
               <AlertTriangle className="h-3 w-3" />
               <span>Unsaved changes</span>
             </div>
@@ -62,7 +62,7 @@ export function StatusBar({
         {/* Auto Save Status */}
         {autoSaveEnabled && (
           <>
-            <div className="flex items-center gap-1 text-blue-600">
+            <div className="flex items-center gap-1 text-[#9fbbe0]">
               <Zap className="h-3 w-3" />
               <span>Auto Save</span>
             </div>
@@ -73,7 +73,7 @@ export function StatusBar({
         {/* Last Saved */}
         {lastSaved && (
           <>
-            <div className="flex items-center gap-1 text-green-600">
+            <div className="flex items-center gap-1 text-[#9fc9a2]">
               <CheckCircle className="h-3 w-3" />
               <span>Saved {lastSaved.toLocaleTimeString()}</span>
             </div>

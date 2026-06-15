@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import { AIChatSidePanel } from "@/features/ai-chat/components/ai-chat-sidepanel";
 import { useTheme } from "next-themes";
 import { useFileExplorer } from "../hooks/useFileExplorer";
+import { toast } from "sonner";
 
 
 interface ToggleAIProps {
@@ -47,6 +48,8 @@ interface ToggleAIProps {
   suggestionLoading: boolean;
   loadingProgress?: number;
   activeFeature?: string;
+  cursorPosition?: { line: number; column: number };
+  onRunCode?: (code: string, language: string) => void;
 }
 
 const ToggleAI: React.FC<ToggleAIProps> = ({
@@ -56,13 +59,15 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
   suggestionLoading,
   loadingProgress = 0,
   activeFeature,
+  cursorPosition = { line: 1, column: 1 },
+  onRunCode,
 }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { theme: appTheme } = useTheme();
   const theme = (appTheme === "light" ? "light" : "dark") as "dark" | "light";
 
   // Get real active file from the file explorer store
-  const { openFiles, activeFileId } = useFileExplorer();
+  const { openFiles, activeFileId, updateFileContent } = useFileExplorer();
 
   const activeOpenFile = useMemo(() => {
     if (!activeFileId) return null;
@@ -92,16 +97,45 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
     return langMap[ext] || "text";
   }, [activeOpenFile]);
 
-  const cursorPosition = { line: 1, column: 1 };
-
-  // Handler for code insertion from AI chat panel
   const handleInsertCode = (code: string, fileName?: string, position?: { line: number; column: number }) => {
-    console.log("Insert code:", { code, fileName, position });
+    const targetFile =
+      openFiles.find(
+        (file) => `${file.filename}.${file.fileExtension}` === fileName
+      ) || activeOpenFile;
+    if (!targetFile) {
+      toast.error("Open a file before inserting code");
+      return;
+    }
+
+    const targetPosition = position || cursorPosition;
+    const lines = targetFile.content.split("\n");
+    const lineIndex = Math.max(
+      0,
+      Math.min((targetPosition.line || 1) - 1, lines.length - 1)
+    );
+    const columnIndex = Math.max(
+      0,
+      Math.min((targetPosition.column || 1) - 1, lines[lineIndex]?.length || 0)
+    );
+    const before = lines.slice(0, lineIndex);
+    const after = lines.slice(lineIndex + 1);
+    const currentLine = lines[lineIndex] || "";
+    const nextContent = [
+      ...before,
+      `${currentLine.slice(0, columnIndex)}${code}${currentLine.slice(columnIndex)}`,
+      ...after,
+    ].join("\n");
+
+    updateFileContent(targetFile.id, nextContent);
+    toast.success(`Inserted code into ${targetFile.filename}.${targetFile.fileExtension}`);
   };
 
-  // Handler for running code from AI chat panel
   const handleRunCode = (code: string, language: string) => {
-    console.log("Run code:", { code, language });
+    if (!onRunCode) {
+      toast.error("The runtime is not ready yet");
+      return;
+    }
+    onRunCode(code, language);
   };
 
   return (
@@ -112,24 +146,24 @@ const ToggleAI: React.FC<ToggleAIProps> = ({
             size="sm" 
             variant={isEnabled ? "default" : "outline"}
             className={cn(
-              "relative gap-2 h-8 px-3 text-sm font-medium transition-all duration-200",
+              "relative h-8 gap-2 border px-2.5 text-[10px] font-medium transition-all duration-200",
               isEnabled 
-                ? "bg-primary hover:bg-primary/90 text-primary-foreground" 
-                : "bg-background hover:bg-accent text-foreground border-border",
+                ? "border-[#ff7043]/30 bg-[#ff7043]/15 text-[#ff9a78] hover:bg-[#ff7043]/20"
+                : "border-white/8 bg-white/[0.03] text-white/45 hover:bg-white/8 hover:text-white",
               suggestionLoading && "opacity-75"
             )}
             onClick={(e) => e.preventDefault()}
           >
             {suggestionLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-3.5 animate-spin" />
             ) : (
-              <Bot className="h-4 w-4" />
+              <Bot className="size-3.5" />
             )}
             <span>AI</span>
             {isEnabled ? (
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <div className="size-1.5 animate-pulse rounded-full bg-[#9fc9a2]" />
             ) : (
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              <div className="size-1.5 rounded-full bg-white/20" />
             )}
           </Button>
         </DropdownMenuTrigger>
