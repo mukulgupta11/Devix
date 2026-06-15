@@ -42,10 +42,8 @@ const nextConfig: NextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/template/[id]': ['./vibecode-starters/**/*'],
-    },
+  outputFileTracingIncludes: {
+    '/api/template/[id]': ['./vibecode-starters/**/*'],
   },
 };
 

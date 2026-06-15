@@ -1,689 +1,626 @@
 "use client";
 
-import Image from "next/image";
+import {
+  ArrowRight,
+  Bot,
+  Braces,
+  Check,
+  ChevronRight,
+  Code2,
+  Command,
+  Cpu,
+  Github,
+  Layers3,
+  Play,
+  Sparkles,
+  Terminal,
+  WandSparkles,
+  Zap,
+} from "lucide-react";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ui/toggle-theme";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
+const features = [
+  {
+    icon: Bot,
+    eyebrow: "Context-aware AI",
+    title: "An agent that understands the whole system.",
+    body: "Devix reads your files, follows dependencies, and turns intent into production-ready changes without losing the thread.",
+    accent: "bg-[#dfa88f]",
+  },
+  {
+    icon: Cpu,
+    eyebrow: "Browser-native runtime",
+    title: "Real Node.js. No remote machine between you and the idea.",
+    body: "Install packages, run servers, inspect logs, and ship from an isolated WebContainer that wakes in seconds.",
+    accent: "bg-[#9fc9a2]",
+  },
+  {
+    icon: Layers3,
+    eyebrow: "One connected workspace",
+    title: "Editor, preview, terminal, and AI in one continuous flow.",
+    body: "Every surface shares context, so iteration feels direct instead of fragmented across tools and tabs.",
+    accent: "bg-[#9fbbe0]",
+  },
+];
+
+const stack = ["Next.js", "React", "Vue", "Angular", "Hono", "Express"];
+
+function BrandMark({ compact = false }: { compact?: boolean }) {
+  return (
+    <span className="flex items-center gap-2.5">
+      <span className="relative grid size-8 place-items-center overflow-hidden rounded-[9px] bg-[#24231e] text-white">
+        <span className="absolute inset-0 bg-[linear-gradient(135deg,transparent_45%,#f4511e_46%,#f4511e_62%,transparent_63%)]" />
+        <Code2 className="relative size-4" strokeWidth={2.2} />
+      </span>
+      {!compact && (
+        <span className="font-headline text-[17px] font-semibold tracking-[-0.03em]">
+          devix
+        </span>
+      )}
+    </span>
+  );
+}
+
+function ProductStage() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 44, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 1, delay: 0.35, ease }}
+      className="relative mx-auto mt-16 w-full max-w-[1180px]"
+    >
+      <div className="absolute -inset-8 -z-10 rounded-[40px] bg-[radial-gradient(circle_at_50%_0%,rgba(244,81,30,0.18),transparent_62%)] blur-2xl" />
+      <div className="overflow-hidden rounded-[18px] border border-[#33322e] bg-[#11110f] text-[#d9d5cb] shadow-[0_40px_100px_rgba(36,35,30,0.18)]">
+        <div className="flex h-11 items-center justify-between border-b border-white/8 px-4">
+          <div className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded-full bg-[#ff6b51]" />
+            <span className="size-2.5 rounded-full bg-[#e5b74d]" />
+            <span className="size-2.5 rounded-full bg-[#63a56f]" />
+          </div>
+          <div className="flex items-center gap-2 font-mono text-[10px] text-white/40">
+            <span className="size-1.5 rounded-full bg-[#79bf83]" />
+            devix / storefront
+          </div>
+          <Command className="size-3.5 text-white/30" />
+        </div>
+
+        <div className="grid min-h-[520px] grid-cols-1 md:grid-cols-[190px_1fr] lg:grid-cols-[190px_1fr_310px]">
+          <aside className="hidden border-r border-white/8 bg-[#0c0c0a] p-3 md:block">
+            <div className="mb-5 flex items-center justify-between px-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">
+                Explorer
+              </span>
+              <span className="text-white/25">•••</span>
+            </div>
+            {[
+              ["app", "folder"],
+              ["components", "folder"],
+              ["page.tsx", "file"],
+              ["globals.css", "file"],
+              ["package.json", "file"],
+            ].map(([label, type], index) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.65 + index * 0.06 }}
+                className={`flex h-8 items-center gap-2 rounded-md px-2 font-mono text-[11px] ${
+                  label === "page.tsx"
+                    ? "bg-white/8 text-white"
+                    : "text-white/45"
+                }`}
+              >
+                {type === "folder" ? (
+                  <ChevronRight className="size-3" />
+                ) : (
+                  <span className="w-3" />
+                )}
+                {type === "folder" ? (
+                  <Layers3 className="size-3.5 text-[#d3a54a]" />
+                ) : (
+                  <Braces className="size-3.5 text-[#7aa4d8]" />
+                )}
+                {label}
+              </motion.div>
+            ))}
+          </aside>
+
+          <div className="min-w-0 bg-[#11110f]">
+            <div className="flex h-10 items-end border-b border-white/8 bg-[#0d0d0b] px-2">
+              <div className="flex h-9 items-center gap-2 border-x border-t border-white/8 bg-[#11110f] px-4 font-mono text-[11px] text-white/70">
+                <Braces className="size-3.5 text-[#75a8dc]" />
+                page.tsx
+                <span className="size-1.5 rounded-full bg-[#f4511e]" />
+              </div>
+            </div>
+            <div className="relative overflow-hidden p-5 font-mono text-[11px] leading-6 sm:p-8 sm:text-[12px]">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#f4511e]/5 to-transparent" />
+              {[
+                ["1", "import", " { motion } ", "from", ' "framer-motion"'],
+                ["2", "import", " { Sparkles } ", "from", ' "lucide-react"'],
+                ["3", "", "", "", ""],
+                ["4", "export default", " function Launch() {", "", ""],
+                ["5", "  return", " (", "", ""],
+                ["6", "    <", "motion.main", "", ""],
+                ["7", "      initial", "={{ opacity: 0 }}", "", ""],
+                ["8", "      animate", "={{ opacity: 1 }}", "", ""],
+                ["9", "      transition", "={{ duration: 0.6 }}", "", ""],
+                ["10", "    >", "", "", ""],
+                ["11", "      <", "Sparkles", " className", '="brand-mark" />'],
+                ["12", "      <", "h1", ">", "Ship while the idea is alive.</h1>"],
+                ["13", "    </", "motion.main", ">", ""],
+                ["14", "  )", "", "", ""],
+                ["15", "}", "", "", ""],
+              ].map(([line, keyword, main, prop, value], index) => (
+                <motion.div
+                  key={line}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 + index * 0.035 }}
+                  className="grid grid-cols-[24px_1fr]"
+                >
+                  <span className="select-none text-white/18">{line}</span>
+                  <span className="whitespace-pre">
+                    <span className="text-[#c4a4dc]">{keyword}</span>
+                    <span className="text-[#d8d3c9]">{main}</span>
+                    <span className="text-[#7eb3dd]">{prop}</span>
+                    <span className="text-[#a9c58d]">{value}</span>
+                  </span>
+                </motion.div>
+              ))}
+              <motion.div
+                animate={{ opacity: [0, 1, 1, 0], x: [0, 0, 120, 120] }}
+                transition={{ duration: 4, repeat: Infinity, times: [0, 0.2, 0.8, 1] }}
+                className="absolute left-[112px] top-[177px] h-5 w-px bg-[#f4511e]"
+              />
+            </div>
+            <div className="grid grid-cols-2 border-t border-white/8 bg-[#0c0c0a] font-mono text-[10px] text-white/35">
+              <div className="flex h-8 items-center gap-3 border-r border-white/8 px-4">
+                <Terminal className="size-3" />
+                TERMINAL
+              </div>
+              <div className="flex h-8 items-center gap-3 px-4">
+                <Check className="size-3 text-[#79bf83]" />
+                localhost:3000
+              </div>
+            </div>
+          </div>
+
+          <aside className="hidden border-l border-white/8 bg-[#151512] lg:block">
+            <div className="flex h-10 items-center justify-between border-b border-white/8 px-4">
+              <div className="flex items-center gap-2 text-xs font-medium text-white/75">
+                <WandSparkles className="size-3.5 text-[#ff7d54]" />
+                Agent
+              </div>
+              <span className="font-mono text-[9px] text-white/25">⌘ I</span>
+            </div>
+            <div className="space-y-4 p-4">
+              <div className="rounded-lg border border-white/8 bg-white/[0.035] p-3 text-[12px] leading-relaxed text-white/65">
+                Add a kinetic entrance, then make the layout collapse cleanly on
+                mobile.
+              </div>
+              <div className="space-y-2 border-l border-white/10 pl-3 font-mono text-[10px]">
+                {[
+                  ["Thinking", "bg-[#dfa88f] text-[#24231e]"],
+                  ["Reading page.tsx", "bg-[#9fbbe0] text-[#24231e]"],
+                  ["Editing layout", "bg-[#c0a8dd] text-[#24231e]"],
+                  ["Done", "bg-[#c08532] text-white"],
+                ].map(([label, color], index) => (
+                  <motion.div
+                    key={label}
+                    initial={{ opacity: 0, x: 8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.25 + index * 0.24 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span className={`rounded-full px-2 py-1 ${color}`}>{label}</span>
+                    {index === 3 && <Check className="size-3 text-[#8ac68e]" />}
+                  </motion.div>
+                ))}
+              </div>
+              <div className="rounded-lg border border-[#f4511e]/20 bg-[#f4511e]/8 p-3 text-[11px] leading-relaxed text-white/60">
+                Updated the entrance sequence and added reduced-motion fallbacks.
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function ScrollFeature({
+  index,
+  feature,
+}: {
+  index: number;
+  feature: (typeof features)[number];
+}) {
+  const Icon = feature.icon;
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 36 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-12%" }}
+      transition={{ duration: 0.7, delay: index * 0.08, ease }}
+      className="group relative overflow-hidden rounded-2xl border border-[#d8d3ca] bg-white p-6 sm:p-8"
+    >
+      <div
+        className={`mb-16 grid size-11 place-items-center rounded-xl ${feature.accent} text-[#24231e] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-3`}
+      >
+        <Icon className="size-5" />
+      </div>
+      <p className="dvx-kicker mb-3">{feature.eyebrow}</p>
+      <h3 className="max-w-sm font-headline text-2xl font-normal leading-[1.14] tracking-[-0.04em] text-[#24231e]">
+        {feature.title}
+      </h3>
+      <p className="mt-5 max-w-md text-sm leading-6 text-[#6d695f]">
+        {feature.body}
+      </p>
+      <div className="absolute right-5 top-5 font-mono text-[10px] text-[#a39e94]">
+        0{index + 1}
+      </div>
+    </motion.article>
+  );
+}
 
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const { scrollYProgress: pageScrollProgress } = useScroll();
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, reducedMotion ? 0 : 120]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.25]);
+  const pointerX = useMotionValue(50);
+  const pointerY = useMotionValue(20);
+  const smoothPointerX = useSpring(pointerX, { stiffness: 90, damping: 24 });
+  const smoothPointerY = useSpring(pointerY, { stiffness: 90, damping: 24 });
+  const heroGlow = useMotionTemplate`radial-gradient(480px circle at ${smoothPointerX}% ${smoothPointerY}%, rgba(244,81,30,0.16), transparent 72%)`;
+
   return (
-    <div className="font-body">
-      {/* TopNavBar */}
-      <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10">
-        <div className="flex justify-between items-center px-8 py-4 max-w-[1440px] mx-auto">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative">
-                <div className="absolute -inset-2 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <Image
-                  src="/logo.svg"
-                  alt="Devix Logo"
-                  width={32}
-                  height={32}
-                  className="object-contain relative z-10 hover:rotate-[360deg] transition-transform duration-1000 ease-in-out"
-                />
-              </div>
-              <span className="text-xl font-bold text-on-surface tracking-tighter font-headline group-hover:text-primary-container transition-colors">
-                Devix
-              </span>
+    <div className="min-h-screen overflow-hidden bg-[#f5f3ee] text-[#24231e]">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#24231e]/8 bg-[#f5f3ee]/88 backdrop-blur-xl">
+        <nav className="mx-auto flex h-16 max-w-[1240px] items-center justify-between px-5 sm:px-8">
+          <Link href="/" aria-label="Devix home">
+            <BrandMark />
+          </Link>
+          <div className="hidden items-center gap-7 text-sm text-[#5f5b52] md:flex">
+            <Link href="#product" className="transition-colors hover:text-[#24231e]">
+              Product
+            </Link>
+            <Link href="#workflow" className="transition-colors hover:text-[#24231e]">
+              Workflow
+            </Link>
+            <Link href="#templates" className="transition-colors hover:text-[#24231e]">
+              Templates
             </Link>
           </div>
-          <div className="flex items-center gap-6">
-            <ThemeToggle />
+          <div className="flex items-center gap-2">
             <Link
               href="/auth/sign-in"
-              className="px-5 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors border border-outline-variant/20 rounded-lg hover:bg-surface-container-high"
+              className="dvx-focus-ring hidden rounded-lg px-4 py-2 text-sm font-medium sm:block"
             >
-              Sign In
+              Sign in
+            </Link>
+            <Link
+              href="/auth/sign-in"
+              className="dvx-focus-ring group flex h-10 items-center gap-2 rounded-lg bg-[#24231e] px-4 text-sm font-medium text-[#f7f5ef] transition-transform hover:-translate-y-0.5"
+            >
+              Start building
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </header>
+      <motion.div
+        className="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-[#f4511e]"
+        style={{ scaleX: pageScrollProgress }}
+      />
 
-      <main className="pt-24 overflow-hidden">
-        {/* Hero Section */}
-        <section className="relative min-h-[921px] flex flex-col items-center justify-center px-6 overflow-hidden">
-          <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary-container/30 blur-[120px] rounded-full"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-secondary-container/20 blur-[100px] rounded-full"></div>
-          </div>
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="relative z-10 text-center max-w-4xl mx-auto space-y-8"
+      <main>
+        <section
+          ref={heroRef}
+          onMouseMove={(event) => {
+            if (reducedMotion) return;
+            const bounds = event.currentTarget.getBoundingClientRect();
+            pointerX.set(((event.clientX - bounds.left) / bounds.width) * 100);
+            pointerY.set(((event.clientY - bounds.top) / bounds.height) * 100);
+          }}
+          className="relative px-5 pb-24 pt-36 sm:px-8 sm:pt-44"
+        >
+          <motion.div
+            className="pointer-events-none absolute inset-0"
+            style={{ backgroundImage: heroGlow }}
+          />
+          <div className="dvx-grid pointer-events-none absolute inset-0 opacity-70" />
+          <div className="pointer-events-none absolute left-1/2 top-[-180px] size-[560px] -translate-x-1/2 rounded-full bg-[#f4511e]/8 blur-[120px]" />
+          <motion.div
+            style={{ y: heroY, opacity: heroOpacity }}
+            className="relative mx-auto max-w-[1240px]"
           >
-            <h1 className="text-6xl md:text-8xl font-bold font-headline tracking-[-0.04em] leading-[0.9] text-on-surface">
-              Devix: The <span className="text-primary-container">Kinetic</span> IDE
-            </h1>
-            <p className="text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto leading-relaxed font-body font-medium">
-              Empower your engineering teams with a cloud-native IDE designed for speed, scale, and seamless collaboration. Experience zero-latency execution and AI-native intelligence in one unified platform.
-            </p>
-            <div className="pt-4">
-              <Link href="/auth/sign-up">
-                <button className="px-8 py-4 bg-primary-container text-on-primary font-bold rounded-full text-lg shadow-[0_0_20px_rgba(52,107,241,0.3)] hover:shadow-[0_0_30px_rgba(52,107,241,0.5)] transition-all hover:scale-105 active:scale-95">
-                  Get Started for Free
-                </button>
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease }}
+              className="mx-auto flex w-fit items-center gap-2 rounded-full border border-[#d4cfc5] bg-white/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#6b675f]"
+            >
+              <Sparkles className="size-3 text-[#f4511e]" />
+              The browser-native AI workspace
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, delay: 0.08, ease }}
+              className="mx-auto mt-8 max-w-5xl text-center font-headline text-[clamp(3.5rem,9vw,7.8rem)] font-normal leading-[0.86] tracking-[-0.075em]"
+            >
+              Build at the speed
+              <span className="block text-[#f4511e]">of thought.</span>
+            </motion.h1>
+            <motion.div
+              animate={
+                reducedMotion
+                  ? undefined
+                  : { y: [0, -10, 0], rotate: [-2, 2, -2] }
+              }
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute left-[3%] top-28 hidden rounded-lg border border-[#d8d3ca] bg-white/80 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[#777168] backdrop-blur lg:block"
+            >
+              npm run idea
+            </motion.div>
+            <motion.div
+              animate={
+                reducedMotion
+                  ? undefined
+                  : { y: [0, 12, 0], rotate: [2, -2, 2] }
+              }
+              transition={{
+                duration: 7.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.6,
+              }}
+              className="absolute right-[2%] top-48 hidden rounded-lg border border-[#d8d3ca] bg-white/80 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[#777168] backdrop-blur lg:block"
+            >
+              preview: live
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, delay: 0.2, ease }}
+              className="mx-auto mt-8 max-w-2xl text-center text-base leading-7 text-[#67635a] sm:text-lg"
+            >
+              Devix brings code, live runtime, and an AI agent into one responsive
+              workspace. Go from a sentence to a running product without leaving
+              the browser.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.28, ease }}
+              className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            >
+              <Link
+                href="/auth/sign-in"
+                className="dvx-focus-ring group flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#f4511e] px-6 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#df4518] sm:w-auto"
+              >
+                Open Devix
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </Link>
-            </div>
-          </motion.div>
-
-          {/* Hero Visual */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 40 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="relative z-10 mt-20 w-full max-w-6xl mx-auto group"
-          >
-            <div className="absolute -inset-1 bg-gradient-to-b from-primary-container/20 to-transparent blur-2xl rounded-[2rem] opacity-50"></div>
-            <div className="relative bg-surface-container-low rounded-t-xl border-x border-t border-outline-variant/20 shadow-2xl overflow-hidden aspect-[16/9]">
-              {/* Window Controls */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-surface-container-lowest border-b border-outline-variant/10">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#FEBC2E]"></div>
-                  <div className="w-3 h-3 rounded-full bg-[#28C840]"></div>
-                </div>
-                <div className="ml-4 text-xs font-mono text-on-surface-variant/40">
-                  ~/devix-project/app/page.tsx
-                </div>
-              </div>
-              {/* Editor Simulation */}
-              <div className="grid grid-cols-[240px_1fr_300px] h-full">
-                <div className="bg-surface-container-lowest/50 border-r border-outline-variant/10 p-4 space-y-2">
-                  <div className="h-4 w-3/4 bg-surface-container-highest rounded-sm opacity-20"></div>
-                  <div className="h-4 w-1/2 bg-surface-container-highest rounded-sm opacity-20 ml-4"></div>
-                  <div className="h-4 w-2/3 bg-surface-container-highest rounded-sm opacity-40 ml-4"></div>
-                  <div className="h-4 w-1/2 bg-primary-container/20 rounded-sm ml-4"></div>
-                </div>
-                <div className="p-8 font-mono text-sm space-y-4">
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">1</span>
-                    <span className="text-primary-container font-bold">import</span>{" "}
-                    <span className="text-on-surface">React</span>{" "}
-                    <span className="text-primary-container font-bold">from</span>{" "}
-                    <span className="text-primary">'react'</span>
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">2</span>
-                    <span className="text-primary-container font-bold">export default function</span>{" "}
-                    <span className="text-primary-fixed-dim font-bold">DevixEditor</span>() {"{"}
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">3</span>
-                    &nbsp;&nbsp;<span className="text-primary-container font-bold">return</span> (
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">4</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;
-                    <span className="text-primary-container font-bold">div</span> className=
-                    <span className="text-primary">"kinetic-ui"</span>&gt;
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">5</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;
-                    <span className="text-primary-container font-bold">h1</span>&gt;The Future of Coding&lt;/
-                    <span className="text-primary-container font-bold">h1</span>&gt;
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">6</span>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/
-                    <span className="text-primary-container font-bold">div</span>&gt;
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">7</span>
-                    &nbsp;&nbsp;)
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="text-on-surface-variant/50">8</span>
-                    {"}"}
-                  </div>
-                </div>
-                <div className="bg-surface-container-lowest/50 border-l border-outline-variant/10 p-4 overflow-hidden">
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="material-symbols-outlined text-primary text-sm">
-                      chat_bubble
-                    </span>
-                    <span className="text-[0.6rem] font-bold uppercase tracking-widest text-on-surface-variant">
-                      Devix AI Assistant
-                    </span>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="p-3 bg-surface-container-high rounded-lg text-[0.7rem] text-on-surface-variant leading-relaxed">
-                      "I can see you're building a kinetic UI. Would you like me to
-                      optimize the layout for antigravity responsiveness?"
-                    </div>
-                    <div className="p-3 bg-primary-container/10 border border-primary-container/20 rounded-lg text-[0.7rem] text-primary-fixed-dim leading-relaxed font-medium">
-                      "Sure, let's use the Space Grotesk font with tight tracking."
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <a
+                href="#product"
+                className="dvx-focus-ring flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-[#cbc6bb] bg-white px-6 text-sm font-medium transition-colors hover:bg-[#ece9e2] sm:w-auto"
+              >
+                <Play className="size-3.5 fill-current" />
+                See how it works
+              </a>
+            </motion.div>
+            <ProductStage />
           </motion.div>
         </section>
 
-        {/* Product Showcase Section */}
-        <section className="py-24 space-y-32">
-          {/* Feature 1: AI-Native Engineering */}
-          <motion.div 
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="max-w-[1440px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
-          >
-            <div className="space-y-6 order-2 lg:order-1">
-              <span className="text-primary font-bold tracking-widest text-xs uppercase bg-primary-container/10 px-3 py-1 rounded-full border border-primary-container/10">
-                AI-Native Development
-              </span>
-              <h2 className="text-4xl md:text-5xl font-headline font-bold text-on-surface tracking-tight leading-tight">
-                AI that speaks <br/>
-                <span className="text-primary-container">Architectural Truth.</span>
-              </h2>
-              <p className="text-lg text-on-surface-variant leading-relaxed font-body">
-                Beyond simple autocomplete, Devix AI understands your entire codebase structure. 
-                Get context-aware refactoring, deep logic explanation, and instant unit test generation 
-                that aligns with your specific architectural patterns.
-              </p>
-              <div className="flex items-center gap-6 pt-4">
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold text-on-surface">90%</span>
-                  <span className="text-xs text-on-surface-variant uppercase tracking-widest">Faster Refactoring</span>
-                </div>
-                <div className="w-px h-10 bg-outline-variant/20"></div>
-                <div className="flex flex-col">
-                  <span className="text-2xl font-bold text-on-surface">Zero</span>
-                  <span className="text-xs text-on-surface-variant uppercase tracking-widest">Manual Boilerplate</span>
-                </div>
+        <section id="product" className="border-y border-[#d8d3ca] bg-[#ece9e2] px-5 py-24 sm:px-8">
+          <div className="mx-auto max-w-[1240px]">
+            <div className="grid items-end gap-8 lg:grid-cols-[1fr_0.7fr]">
+              <div>
+                <p className="dvx-kicker text-[#777168]">Designed for momentum</p>
+                <h2 className="mt-4 max-w-3xl font-headline text-4xl font-normal leading-[1.02] tracking-[-0.055em] sm:text-6xl">
+                  Fewer handoffs. More finished work.
+                </h2>
               </div>
+              <p className="max-w-lg text-base leading-7 text-[#69655c] lg:justify-self-end">
+                The interface stays quiet until you need it, then responds with
+                clear motion, contextual controls, and immediate feedback.
+              </p>
             </div>
-            <div className="relative order-1 lg:order-2 group">
-              <div className="absolute -inset-4 bg-primary/20 blur-[100px] rounded-full opacity-50 group-hover:opacity-70 transition-opacity"></div>
-              <Image
-                src="/ai-feature.png"
-                alt="AI-Native Editor"
-                width={800}
-                height={500}
-                className="rounded-3xl border border-outline-variant/10 shadow-2xl relative z-10"
-              />
+            <div className="mt-14 grid gap-4 lg:grid-cols-3">
+              {features.map((feature, index) => (
+                <ScrollFeature key={feature.title} feature={feature} index={index} />
+              ))}
             </div>
-          </motion.div>
+          </div>
+        </section>
 
-          {/* Feature 2: WebContainer Runtime */}
-          <div className="bg-surface-container-low py-32 border-y border-outline-variant/10">
-            <motion.div 
-              initial={{ opacity: 0, x: 40 }}
+        <section id="workflow" className="bg-[#24231e] px-5 py-24 text-[#f5f3ee] sm:px-8 sm:py-32">
+          <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="max-w-[1440px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+              viewport={{ once: true, margin: "-15%" }}
+              transition={{ duration: 0.8, ease }}
             >
-              <div className="relative group">
-                <div className="absolute -inset-4 bg-primary-container/10 blur-[80px] rounded-full opacity-40 group-hover:opacity-60 transition-opacity"></div>
-                <Image
-                  src="/webcontainer-feature.png"
-                  alt="WebContainer Runtime"
-                  width={800}
-                  height={500}
-                  className="rounded-3xl border border-outline-variant/10 shadow-2xl relative z-10"
-                />
-              </div>
-              <div className="space-y-6">
-                <span className="text-primary font-bold tracking-widest text-xs uppercase bg-primary-container/10 px-3 py-1 rounded-full border border-primary-container/10">
-                  Infrastructure-as-Context
-                </span>
-                <h2 className="text-4xl md:text-5xl font-headline font-bold text-on-surface tracking-tight leading-tight">
-                  Bare-Metal Performance, <br/>
-                  <span className="text-primary-container">in your Browser.</span>
-                </h2>
-                <p className="text-lg text-on-surface-variant leading-relaxed font-body">
-                  Leverage the full power of Node.js directly in your browser. 
-                  Devix uses WebContainer technology to provide a local-like environment 
-                  with persistent filesystem access, zero latency, and seamless dependency isolation.
-                </p>
-                <div className="flex flex-wrap gap-3 pt-4">
-                  {["NODE.JS", "TYPESCRIPT", "VITE", "DOCKER-LITE"].map((tech) => (
-                    <span key={tech} className="px-3 py-1 bg-surface-container-high rounded text-[0.6rem] font-bold text-on-surface-variant">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Feature 3: Dashboard */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="max-w-[1440px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
-          >
-            <div className="space-y-6">
-              <span className="text-primary font-bold tracking-widest text-xs uppercase bg-primary-container/10 px-3 py-1 rounded-full border border-primary-container/10">
-                Command & Control
-              </span>
-              <h2 className="text-4xl md:text-5xl font-headline font-bold text-on-surface tracking-tight leading-tight">
-                Your Entire Infrastructure <br/>
-                <span className="text-primary-container">Visualized.</span>
+              <p className="dvx-kicker !text-[#aaa59a]">One continuous loop</p>
+              <h2 className="mt-5 font-headline text-5xl font-normal leading-[0.98] tracking-[-0.055em] sm:text-7xl">
+                Prompt.
+                <br />
+                Inspect.
+                <br />
+                <span className="text-[#ff7043]">Ship.</span>
               </h2>
-              <p className="text-lg text-on-surface-variant leading-relaxed font-body">
-                Manage your projects with enterprise-grade clarity. 
-                Our unified dashboard provides deep visibility into your team's 
-                code health, deployment statistics, and engineering velocity 
-                from one beautifully crafted command center.
+              <p className="mt-7 max-w-md text-base leading-7 text-[#b9b5ab]">
+                Devix keeps the AI close to the code and the result close to the
+                editor. Every change is visible, reversible, and immediately
+                runnable.
               </p>
-              <button className="flex items-center gap-2 text-primary font-bold group">
-                Explore Analytics 
-                <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
-              </button>
-            </div>
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-primary-fixed-dim/10 blur-[100px] rounded-full opacity-30 group-hover:opacity-50 transition-opacity"></div>
-              <Image
-                src="/dashboard-feature.png"
-                alt="Developer Dashboard"
-                width={800}
-                height={500}
-                className="rounded-3xl border border-outline-variant/10 shadow-2xl relative z-10"
-              />
-            </div>
-          </motion.div>
-        </section>
+              <Link
+                href="/auth/sign-in"
+                className="group mt-8 inline-flex items-center gap-2 text-sm font-medium text-white"
+              >
+                Enter the workspace
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </motion.div>
 
-        {/* Template Showcase */}
-        <section className="py-24 bg-surface-container-lowest/50">
-          <div className="px-8 max-w-[1440px] mx-auto space-y-12">
-            <div className="flex items-end justify-between">
-              <div className="space-y-2">
-                <span className="text-[0.6875rem] uppercase tracking-[0.2em] font-bold text-primary-container">
-                  Pre-Engineered
-                </span>
-                <h2 className="text-4xl font-headline font-bold text-on-surface tracking-tight">
-                  Ready-to-Use Templates
-                </h2>
-              </div>
-            </div>
-            
-            <div className="overflow-hidden relative w-full pt-4">
-              <div className="flex w-max gap-6 animate-marquee">
-                {[
-                  {
-                    name: "Next.js",
-                    title: "App Router Pro",
-                    desc: "Next.js 15, Tailwind v4, & Framer Motion",
-                    icon: "/nextjs-icon.svg",
-                    tag1: "TYPESCRIPT",
-                    tag2: "SSR"
-                  },
-                  {
-                    name: "Hono",
-                    title: "Ultra-Fast API",
-                    desc: "Hono, Cloudflare Workers, & Drizzle ORM",
-                    icon: "/hono.svg",
-                    tag1: "EDGE",
-                    tag2: "DB"
-                  },
-                  {
-                    name: "React 19",
-                    title: "Modern Dashboard",
-                    desc: "React 19, TanStack Query, & Shadcn UI",
-                    icon: "/react.svg",
-                    tag1: "UI",
-                    tag2: "STATE"
-                  },
-                  {
-                    name: "Angular",
-                    title: "Enterprise Shell",
-                    desc: "Angular 18, Signals, & RxJS Core",
-                    icon: "/angular-2.svg",
-                    tag1: "SIGNALS",
-                    tag2: "SCALABLE"
-                  },
-                  {
-                    name: "Vue.js",
-                    title: "Performant UI",
-                    desc: "Vue 3, Composition API & Pinia",
-                    icon: "/vuejs-icon.svg",
-                    tag1: "REACTIVE",
-                    tag2: "SPEED"
-                  },
-                  {
-                    name: "Express.js",
-                    title: "Minimal Backend",
-                    desc: "Node.js, Express & Mongoose",
-                    icon: "/expressjs-icon.svg",
-                    tag1: "API",
-                    tag2: "NODEJS"
-                  }
-                ].map((item, index) => (
-                  <div key={index} className="w-[300px] shrink-0 group bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10 hover:bg-surface-container-high transition-all cursor-pointer">
-                    <div className="h-40 rounded-xl bg-surface-container-highest mb-6 overflow-hidden relative flex items-center justify-center p-8">
-                      <Image
-                        src={item.icon}
-                        alt={item.name}
-                        width={90}
-                        height={90}
-                        className="object-contain group-hover:scale-110 transition-transform duration-500 opacity-80"
-                      />
-                    </div>
-                    <h4 className="text-xl font-bold font-headline mb-2">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-on-surface-variant/60 mb-4 whitespace-normal">
-                      {item.desc}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-surface-container-highest rounded text-[0.6rem] font-bold">
-                        {item.tag1}
-                      </span>
-                      <span className="px-2 py-1 bg-surface-container-highest rounded text-[0.6rem] font-bold">
-                        {item.tag2}
-                      </span>
-                    </div>
-                  </div>
-                )).concat([
-                  {
-                    name: "Next.js",
-                    title: "App Router Pro",
-                    desc: "Next.js 15, Tailwind v4, & Framer Motion",
-                    icon: "/nextjs-icon.svg",
-                    tag1: "TYPESCRIPT",
-                    tag2: "SSR"
-                  },
-                  {
-                    name: "Hono",
-                    title: "Ultra-Fast API",
-                    desc: "Hono, Cloudflare Workers, & Drizzle ORM",
-                    icon: "/hono.svg",
-                    tag1: "EDGE",
-                    tag2: "DB"
-                  },
-                  {
-                    name: "React 19",
-                    title: "Modern Dashboard",
-                    desc: "React 19, TanStack Query, & Shadcn UI",
-                    icon: "/react.svg",
-                    tag1: "UI",
-                    tag2: "STATE"
-                  },
-                  {
-                    name: "Angular",
-                    title: "Enterprise Shell",
-                    desc: "Angular 18, Signals, & RxJS Core",
-                    icon: "/angular-2.svg",
-                    tag1: "SIGNALS",
-                    tag2: "SCALABLE"
-                  },
-                  {
-                    name: "Vue.js",
-                    title: "Performant UI",
-                    desc: "Vue 3, Composition API & Pinia",
-                    icon: "/vuejs-icon.svg",
-                    tag1: "REACTIVE",
-                    tag2: "SPEED"
-                  },
-                  {
-                    name: "Express.js",
-                    title: "Minimal Backend",
-                    desc: "Node.js, Express & Mongoose",
-                    icon: "/expressjs-icon.svg",
-                    tag1: "API",
-                    tag2: "NODEJS"
-                  }
-                ].map((item, index) => (
-                  <div key={`dup-${index}`} className="w-[300px] shrink-0 group bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10 hover:bg-surface-container-high transition-all cursor-pointer">
-                    <div className="h-40 rounded-xl bg-surface-container-highest mb-6 overflow-hidden relative flex items-center justify-center p-8">
-                      <Image
-                        src={item.icon}
-                        alt={item.name}
-                        width={90}
-                        height={90}
-                        className="object-contain group-hover:scale-110 transition-transform duration-500 opacity-80"
-                      />
-                    </div>
-                    <h4 className="text-xl font-bold font-headline mb-2">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-on-surface-variant/60 mb-4 whitespace-normal">
-                      {item.desc}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-surface-container-highest rounded text-[0.6rem] font-bold">
-                        {item.tag1}
-                      </span>
-                      <span className="px-2 py-1 bg-surface-container-highest rounded text-[0.6rem] font-bold">
-                        {item.tag2}
-                      </span>
-                    </div>
-                  </div>
-                )))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* AI Assistant Highlight */}
-        <section className="py-32 px-8 overflow-hidden relative">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-center"
-          >
-            <div className="space-y-8">
-              <motion.span 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="px-4 py-1.5 bg-primary-container/10 text-primary-fixed-dim rounded-full text-xs font-bold font-headline tracking-widest border border-primary-container/20 inline-block"
-              >
-                INTELLIGENT COMPANION
-              </motion.span>
-              <motion.h2 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-5xl font-headline font-bold text-on-surface leading-[1.1] tracking-tight"
-              >
-                AI that speaks <br />
-                <span className="text-primary-container">Architectural Truth.</span>
-              </motion.h2>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-xl text-on-surface-variant leading-relaxed"
-              >
-                Devix AI isn't just an autocomplete tool. It understands your
-                entire codebase context, suggests high-level refactors, and
-                explains complex logic as you write.
-              </motion.p>
-              <motion.ul 
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true }}
-                variants={{
-                  hidden: { opacity: 0 },
-                  show: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.2
-                    }
-                  }
-                }}
-                className="space-y-6"
-              >
-                {[
-                  { title: "Explain Logic", desc: "Break down complex regex or legacy functions in human terms." },
-                  { title: "Refactor Instantaneously", desc: "Convert class components to hooks or optimize for performance automatically." }
-                ].map((item, idx) => (
-                  <motion.li 
-                    key={idx}
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      show: { opacity: 1, x: 0 }
-                    }}
-                    className="flex items-start gap-4"
-                  >
-                    <div className="mt-1 w-6 h-6 rounded-full bg-primary-container/20 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-primary text-lg">
-                        check
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold font-headline text-on-surface">
-                        {item.title}
-                      </h4>
-                      <p className="text-sm text-on-surface-variant/70">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </motion.li>
-                ))}
-              </motion.ul>
-            </div>
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, rotateY: 10 }}
-              whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
-              transition={{ duration: 1, type: "spring", bounce: 0.4 }}
-              className="relative"
+            <motion.div
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              transition={{ duration: 0.8, ease }}
+              className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151512] p-3 sm:p-5"
             >
-              <div className="absolute inset-0 bg-primary-container/5 blur-[120px] rounded-full"></div>
-              <div className="relative bg-surface-container-high rounded-3xl p-6 shadow-2xl border border-outline-variant/10">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
-                      <span
-                        className="material-symbols-outlined text-white"
-                        style={{ fontVariationSettings: "'FILL' 1" }}
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ff7043] to-transparent" />
+              <div className="rounded-xl border border-white/8 bg-[#0e0e0c]">
+                <div className="flex items-center justify-between border-b border-white/8 p-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Bot className="size-4 text-[#ff7043]" />
+                    Devix Agent
+                  </div>
+                  <span className="font-mono text-[10px] text-white/30">LIVE</span>
+                </div>
+                <div className="space-y-5 p-5 sm:p-7">
+                  <div className="ml-auto max-w-md rounded-xl bg-white/7 p-4 text-sm leading-6 text-white/75">
+                    Build a pricing section that feels premium, uses our existing
+                    tokens, and animates in as I scroll.
+                  </div>
+                  <div className="max-w-lg space-y-3 rounded-xl border border-white/8 bg-white/[0.025] p-4">
+                    {[
+                      ["Thinking", "#dfa88f"],
+                      ["Reading design tokens", "#9fbbe0"],
+                      ["Editing pricing.tsx", "#c0a8dd"],
+                      ["Running checks", "#9fc9a2"],
+                    ].map(([label, color], index) => (
+                      <motion.div
+                        key={label}
+                        initial={{ width: 0, opacity: 0 }}
+                        whileInView={{ width: "100%", opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.55, delay: 0.25 + index * 0.18, ease }}
+                        className="flex items-center gap-3 overflow-hidden whitespace-nowrap"
                       >
-                        bolt
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold font-headline">Devix AI</h4>
-                      <span className="text-[0.6rem] text-primary">
-                        System Online
-                      </span>
-                    </div>
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ backgroundColor: color }}
+                        />
+                        <span className="font-mono text-[11px] text-white/55">
+                          {label}
+                        </span>
+                        <span className="h-px flex-1 bg-white/8" />
+                        {index < 3 ? (
+                          <Check className="size-3.5 text-[#8dbe92]" />
+                        ) : (
+                          <span className="size-3 animate-pulse rounded-full bg-[#9fc9a2]" />
+                        )}
+                      </motion.div>
+                    ))}
                   </div>
-                  <span className="material-symbols-outlined text-on-surface-variant/40">
-                    more_vert
-                  </span>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-1 bg-surface-container-lowest p-4 rounded-2xl rounded-tl-none border border-outline-variant/5">
-                      <p className="text-xs font-mono text-on-surface-variant/80">
-                        "How should I structure the state for this kinetic navigation
-                        component?"
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 flex-row-reverse">
-                    <div className="flex-1 bg-primary-container/20 p-4 rounded-2xl rounded-tr-none border border-primary-container/30">
-                      <p className="text-xs text-on-surface leading-relaxed">
-                        "For kinetic movement, I recommend using{" "}
-                        <span className="text-primary-fixed-dim font-bold">
-                          framer-motion
-                        </span>{" "}
-                        with the{" "}
-                        <span className="text-primary-fixed-dim font-bold">
-                          useReducedMotion
-                        </span>{" "}
-                        hook to maintain accessibility while achieving that
-                        weightless feel."
-                      </p>
-                    </div>
-                  </div>
-                  <div className="pt-4 border-t border-outline-variant/10 flex items-center gap-3">
-                    <div className="flex-1 h-10 bg-surface-container-highest rounded-full px-4 flex items-center">
-                      <span className="text-xs text-on-surface-variant/40">
-                        Ask Devix anything...
-                      </span>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
-                      <span className="material-symbols-outlined">send</span>
-                    </div>
+                  <div className="flex items-center gap-3 rounded-xl border border-[#ff7043]/20 bg-[#ff7043]/8 p-4 text-sm text-white/70">
+                    <Zap className="size-4 shrink-0 text-[#ff7043]" />
+                    Preview updated in 1.2 seconds
                   </div>
                 </div>
               </div>
             </motion.div>
-          </motion.div>
+          </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-40 px-8">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto bg-gradient-to-br from-primary-container to-blue-900 rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden group"
-          >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-700"></div>
-            <div className="relative z-10 space-y-8">
-              <h2 className="text-5xl md:text-7xl font-headline font-bold text-white tracking-tight">
-                Ready to build?
+        <section id="templates" className="px-5 py-24 sm:px-8 sm:py-32">
+          <div className="mx-auto max-w-[1240px]">
+            <div className="text-center">
+              <p className="dvx-kicker">Start with a strong foundation</p>
+              <h2 className="mx-auto mt-4 max-w-3xl font-headline text-4xl font-normal leading-[1.02] tracking-[-0.055em] sm:text-6xl">
+                Your stack is already waiting.
               </h2>
-              <p className="text-xl text-white/80 max-w-lg mx-auto">
-                Join 50k+ developers building the future of the web right from
-                their browser.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-                <Link href="/auth/sign-up" className="w-full sm:w-auto">
-                  <button className="w-full bg-white text-primary-container px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl transition-all flex items-center justify-center gap-3 group/btn">
-                    Sign up with Google
-                  </button>
-                </Link>
-                <Link href="/auth/sign-in" className="w-full sm:w-auto">
-                  <button className="w-full bg-[#1b1b1b] text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-black transition-all flex items-center justify-center gap-3">
-                    Sign up with GitHub
-                  </button>
-                </Link>
+            </div>
+            <div className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[#d8d3ca] bg-[#d8d3ca] md:grid-cols-3">
+              {stack.map((item, index) => (
+                <motion.div
+                  key={item}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.06 }}
+                  className="group flex min-h-40 flex-col justify-between bg-[#faf9f6] p-5 transition-colors hover:bg-white sm:min-h-48 sm:p-7"
+                >
+                  <span className="font-mono text-[10px] text-[#9b968c]">
+                    0{index + 1}
+                  </span>
+                  <div className="flex items-end justify-between gap-3">
+                    <span className="font-headline text-xl tracking-[-0.04em] sm:text-2xl">
+                      {item}
+                    </span>
+                    <ArrowRight className="size-4 -translate-x-2 text-[#f4511e] opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-5 pb-24 sm:px-8 sm:pb-32">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.75, ease }}
+            className="relative mx-auto max-w-[1240px] overflow-hidden rounded-[24px] bg-[#f4511e] px-6 py-16 text-white sm:px-14 sm:py-20"
+          >
+            <div className="dvx-noise absolute inset-0 opacity-[0.09] mix-blend-overlay" />
+            <div className="relative grid items-end gap-10 lg:grid-cols-[1fr_auto]">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.17em] text-white/70">
+                  Your next build starts here
+                </p>
+                <h2 className="mt-5 max-w-4xl font-headline text-5xl font-normal leading-[0.94] tracking-[-0.06em] sm:text-7xl">
+                  Keep the idea moving.
+                </h2>
               </div>
-              <p className="text-xs text-white/40 pt-4 font-mono">
-                NO CREDIT CARD REQUIRED • INSTANT SETUP
-              </p>
+              <Link
+                href="/auth/sign-in"
+                className="group flex h-13 items-center justify-center gap-2 rounded-lg bg-[#24231e] px-6 text-sm font-semibold text-white transition-transform hover:-translate-y-1"
+              >
+                Build with Devix
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
           </motion.div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-surface w-full py-12 px-8 border-t border-outline-variant/10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-[1440px] mx-auto">
-          <div className="space-y-4">
-            <div className="text-lg font-black text-on-surface font-headline">
-              Devix
-            </div>
-            <p className="text-on-surface-variant font-['Inter'] text-sm tracking-wide leading-relaxed">
-              © 2026 Devix Ai.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-x-8 gap-y-4 justify-start md:justify-end">
-            <Link
-              href="#"
-              className="text-on-surface-variant hover:text-primary transition-colors font-['Inter'] text-sm tracking-wide opacity-80 hover:opacity-100"
-            >
-              Changelog
-            </Link>
-            <Link
-              href="#"
-              className="text-on-surface-variant hover:text-primary transition-colors font-['Inter'] text-sm tracking-wide opacity-80 hover:opacity-100"
-            >
-              Security
-            </Link>
-            <Link
-              href="#"
-              className="text-on-surface-variant hover:text-primary transition-colors font-['Inter'] text-sm tracking-wide opacity-80 hover:opacity-100"
-            >
-              Terminal Config
-            </Link>
+      <footer className="border-t border-[#d8d3ca] px-5 py-10 sm:px-8">
+        <div className="mx-auto flex max-w-[1240px] flex-col gap-7 sm:flex-row sm:items-center sm:justify-between">
+          <BrandMark />
+          <p className="text-xs text-[#7c786f]">
+            Browser-native engineering, designed for momentum.
+          </p>
+          <div className="flex items-center gap-5 text-xs text-[#69655c]">
+            <a href="https://github.com" aria-label="GitHub" className="hover:text-[#24231e]">
+              <Github className="size-4" />
+            </a>
+            <span>© 2026 Devix</span>
           </div>
         </div>
       </footer>
