@@ -22,7 +22,7 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import { logout } from "@/features/auth/actions";
+import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -272,8 +272,7 @@ export function DashboardSidebar({
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
                   onClick={async () => {
-                    await logout();
-                    window.location.href = "/";
+                    await signOut({ redirectTo: "/" });
                   }}
                 >
                   <LogOut className="size-4" />

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth, signIn, signOut } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { db } from "@/lib/db";
 
 
@@ -34,13 +34,6 @@ export const getAccountByUserId = async (userId:string)=>{
 export const currentUser = async()=>{
     const user = await auth()
     return user?.user;
-}
-
-export const logout = async () => {
-    // Sign out without immediate redirect - this clears the session cookie
-    await signOut({ redirect: false });
-    // Now redirect to home page (which is public, no auth redirect will happen)
-    return { success: true };
 }
 
 export const signInWithGoogle = async () => {
