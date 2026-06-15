@@ -1,6 +1,6 @@
 "use server";
 
-import { auth, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 import { db } from "@/lib/db";
 
 
@@ -42,3 +42,11 @@ export const logout = async () => {
     // Now redirect to home page (which is public, no auth redirect will happen)
     return { success: true };
 }
+
+export const signInWithGoogle = async () => {
+  await signIn("google", { redirectTo: "/dashboard" });
+};
+
+export const signInWithGithub = async () => {
+  await signIn("github", { redirectTo: "/dashboard" });
+};
