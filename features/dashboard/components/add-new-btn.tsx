@@ -1,77 +1,70 @@
 "use client";
-import TemplateSelectionModal from "@/components/modal/template-selector-modal";
-import { Button } from "@/components/ui/button"
-import { createPlayground } from "@/features/playground/actions";
-import { Plus } from 'lucide-react'
-import Image from "next/image"
+
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react"
+import { motion } from "framer-motion";
+import { ArrowUpRight, Braces, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import TemplateSelectionModal from "@/components/modal/template-selector-modal";
+import { createPlayground } from "@/features/playground/actions";
 
 const AddNewButton = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<{
-    title: string;
-    template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
-    description?: string;
-  } | null>(null)
-  const router = useRouter()
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = async(data: {
+  const handleSubmit = async (data: {
     title: string;
     template: "REACT" | "NEXTJS" | "EXPRESS" | "VUE" | "HONO" | "ANGULAR";
     description?: string;
   }) => {
-    setSelectedTemplate(data)
-    const res = await createPlayground(data);
-    toast("Playground created successfully");
-    // Here you would typically handle the creation of a new playground
-    // with the selected template data
-    console.log("Creating new playground:", data)
-    setIsModalOpen(false)
-    router.push(`/playground/${res?.id}`)
-  }
+    const result = await createPlayground(data);
+    toast.success("Playground created");
+    setIsModalOpen(false);
+    router.push(`/playground/${result?.id}`);
+  };
 
   return (
     <>
-      <div
+      <motion.button
+        type="button"
         onClick={() => setIsModalOpen(true)}
-        className="group px-6 py-6 flex flex-row justify-between items-center border border-border rounded-2xl bg-card cursor-pointer 
-        transition-all duration-300 ease-in-out
-        hover:bg-muted hover:border-primary hover:-translate-y-1
-        shadow-sm
-        hover:shadow-md"
+        whileHover={{ y: -3 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ type: "spring", stiffness: 420, damping: 28 }}
+        className="group relative min-h-52 overflow-hidden rounded-2xl border border-border bg-[#24231e] p-6 text-left text-white"
       >
-        <div className="flex flex-row justify-center items-start gap-5">
-          <div
-            className="flex justify-center flex-shrink-0 items-center w-12 h-12 rounded-xl bg-muted border border-border text-muted-foreground group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:text-primary transition-colors duration-300"
-          >
-            <Plus size={24} className="transition-transform duration-300 group-hover:rotate-90" />
+        <div className="dvx-grid pointer-events-none absolute inset-0 opacity-[0.07]" />
+        <div className="absolute -right-10 -top-10 size-40 rounded-full bg-primary/20 blur-3xl transition-transform duration-700 group-hover:scale-150" />
+        <div className="relative flex h-full flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <span className="grid size-11 place-items-center rounded-xl border border-white/10 bg-white/5">
+              <Plus className="size-5 transition-transform duration-500 group-hover:rotate-90" />
+            </span>
+            <ArrowUpRight className="size-5 text-white/35 transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-white" />
           </div>
-          <div className="flex flex-col">
-            <h1 className="text-xl font-bold font-headline text-foreground group-hover:text-primary transition-colors">Add New Playground</h1>
-            <p className="text-sm text-muted-foreground max-w-[220px] font-body">Create a new dev environment</p>
+          <div className="mt-12">
+            <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">
+              <Sparkles className="size-3 text-[#ff7043]" />
+              Start from a template
+            </div>
+            <h3 className="font-headline text-2xl font-normal tracking-[-0.04em]">
+              Create a playground
+            </h3>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-white/55">
+              Launch a complete framework environment and start coding instantly.
+            </p>
           </div>
         </div>
+        <Braces className="absolute bottom-5 right-6 size-16 text-white/[0.035]" />
+      </motion.button>
 
-        <div className="relative overflow-hidden">
-          <Image
-            src={"/add-new.svg"}
-            alt="Create new playground"
-            width={150}
-            height={150}
-            className="transition-transform duration-300 group-hover:scale-110"
-          />
-        </div>
-      </div>
-      
-      <TemplateSelectionModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <TemplateSelectionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
       />
     </>
-  )
-}
+  );
+};
 
-export default AddNewButton
+export default AddNewButton;

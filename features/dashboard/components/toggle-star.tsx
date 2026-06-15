@@ -31,20 +31,20 @@ export const MarkedToggleButton = forwardRef<HTMLButtonElement, MarkedToggleButt
 
       try {
         const res = await toggleStarMarked(id, newMarkedState)
-        const {success ,error , isMarked} = res;
+        const { success, isMarked } = res;
 
     //    if ismarked true then show marked successfully otherwise show start over
-        if (isMarked && !error && success) {
-          toast.success("Added to Favorites successfully")
+        if (isMarked && success) {
+          toast.success("Added to favorites")
         } else {
-          toast.success("Removed from Favorites successfully")
+          toast.success("Removed from favorites")
         }
 
         router.refresh()
       } catch (error) {
         console.error("Failed to toggle mark for revision:", error)
         setIsMarked(!newMarkedState) // Revert state if the update fails
-        // You might want to add a toast notification here for the user
+        toast.error("Could not update favorite")
       }
     }
 

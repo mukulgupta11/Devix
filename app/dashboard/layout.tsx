@@ -1,18 +1,16 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { DashboardSidebar } from "@/features/dashboard/dashboard-sidebar"
-import { getAllPlaygroundForUser } from "@/features/playground/actions"
-import type React from "react"
-import { auth } from "@/auth"
+import type React from "react";
+import { auth } from "@/auth";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { DashboardSidebar } from "@/features/dashboard/dashboard-sidebar";
+import { getAllPlaygroundForUser } from "@/features/playground/actions";
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const playgroundData = await getAllPlaygroundForUser()
-  const session = await auth()
-
-  // Store icon names (strings) instead of the components themselves
+  const playgroundData = await getAllPlaygroundForUser();
+  const session = await auth();
   const technologyIconMap: Record<string, string> = {
     REACT: "Zap",
     NEXTJS: "Lightbulb",
@@ -20,29 +18,30 @@ export default async function DashboardLayout({
     VUE: "Compass",
     HONO: "FlameIcon",
     ANGULAR: "Terminal",
-  }
+  };
 
   const formattedPlaygroundData =
     playgroundData?.map((item) => ({
       id: item.id,
       name: item.title,
       starred: item.Starmark?.[0]?.isMarked || false,
-      // Pass the icon name as a string
-      icon: technologyIconMap[item.template] || "Code2", // Default to "Code2" if template not found
-    })) || []
+      icon: technologyIconMap[item.template] || "Code2",
+    })) || [];
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full overflow-x-hidden bg-background text-foreground font-body">
-        {/* Pass the formatted data with string icon names */}
-        <DashboardSidebar initialPlaygroundData={formattedPlaygroundData} user={session?.user} />
-        <main className="flex-1 min-w-0 relative">
-          <div className="absolute top-4 left-4 z-50">
+      <div className="flex min-h-screen w-full overflow-x-hidden bg-background text-foreground">
+        <DashboardSidebar
+          initialPlaygroundData={formattedPlaygroundData}
+          user={session?.user}
+        />
+        <main className="relative min-w-0 flex-1">
+          <div className="fixed left-3 top-3 z-50 rounded-lg border border-border bg-background/85 p-0.5 backdrop-blur md:absolute">
             <SidebarTrigger />
           </div>
           {children}
         </main>
       </div>
     </SidebarProvider>
-  )
+  );
 }

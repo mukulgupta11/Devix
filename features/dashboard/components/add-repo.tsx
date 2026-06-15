@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, Github, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowDownToLine, ArrowUpRight, GitBranch, Github, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,10 +24,10 @@ const AddRepo = () => {
   const [repoUrl, setRepoUrl] = useState("");
   const [title, setTitle] = useState("");
 
-  const handleImport = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleImport = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (!repoUrl) {
-      toast.error("Please enter a GitHub repository URL");
+      toast.error("Enter a GitHub repository URL");
       return;
     }
 
@@ -35,26 +35,18 @@ const AddRepo = () => {
     try {
       const response = await fetch("/api/github/import", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repoUrl, title }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || "Failed to import repository");
       }
-
-      toast.success("Repository imported successfully!");
+      toast.success("Repository mounted");
       setIsOpen(false);
-      
-      // Redirect to the new playground
       router.push(`/playground/${data.playgroundId}`);
-    } catch (error: any) {
-      console.error("Import error:", error);
-      toast.error(error.message || "Failed to import repository");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Import failed");
     } finally {
       setIsLoading(false);
     }
@@ -62,83 +54,94 @@ const AddRepo = () => {
 
   return (
     <>
-      <div
+      <motion.button
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="group px-6 py-6 flex flex-row justify-between items-center border border-border rounded-2xl bg-card cursor-pointer 
-        transition-all duration-300 ease-in-out
-        hover:bg-muted hover:border-secondary hover:-translate-y-1
-        shadow-sm
-        hover:shadow-md"
+        whileHover={{ y: -3 }}
+        whileTap={{ scale: 0.99 }}
+        transition={{ type: "spring", stiffness: 420, damping: 28 }}
+        className="group relative min-h-52 overflow-hidden rounded-2xl border border-border bg-card p-6 text-left"
       >
-        <div className="flex flex-row justify-center items-start gap-5">
-          <div
-            className="flex justify-center flex-shrink-0 items-center w-12 h-12 rounded-xl bg-muted border border-border text-muted-foreground group-hover:bg-secondary/10 group-hover:border-secondary/30 group-hover:text-secondary transition-colors duration-300"
-          >
-            <ArrowDown size={24} className="transition-transform duration-300 group-hover:translate-y-1" />
+        <div className="absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_100%_0%,rgba(111,149,199,0.2),transparent_65%)]" />
+        <div className="relative flex h-full flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <span className="grid size-11 place-items-center rounded-xl border border-border bg-background">
+              <ArrowDownToLine className="size-5 transition-transform duration-500 group-hover:translate-y-1" />
+            </span>
+            <ArrowUpRight className="size-5 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
           </div>
-          <div className="flex flex-col">
-            <h1 className="text-xl font-bold font-headline text-foreground group-hover:text-secondary transition-colors">Import Repository</h1>
-            <p className="text-sm text-muted-foreground max-w-[220px] font-body">Mount Github directly into Devix</p>
+          <div className="mt-12">
+            <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+              <GitBranch className="size-3 text-[#6f95c7]" />
+              Continue existing work
+            </div>
+            <h3 className="font-headline text-2xl font-normal tracking-[-0.04em]">
+              Import from GitHub
+            </h3>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
+              Mount a public repository directly into a live Devix runtime.
+            </p>
           </div>
         </div>
-
-        <div className="relative overflow-hidden">
-          <Image
-            src={"/github.svg"}
-            alt="Open GitHub repository"
-            width={150}
-            height={150}
-            className="transition-transform duration-300 group-hover:scale-110"
-          />
-        </div>
-      </div>
+        <Github className="absolute bottom-5 right-6 size-16 text-foreground/[0.035]" />
+      </motion.button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="border-border bg-card sm:max-w-[460px]">
           <form onSubmit={handleImport}>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Github className="w-5 h-5" />
-                Import from GitHub
+              <div className="mb-3 grid size-10 place-items-center rounded-xl bg-foreground text-background">
+                <Github className="size-4.5" />
+              </div>
+              <DialogTitle className="font-headline text-2xl font-normal tracking-[-0.04em]">
+                Import a repository
               </DialogTitle>
-              <DialogDescription>
-                Enter the URL of a public GitHub repository. We will fetch its files and create a new Devix playground.
+              <DialogDescription className="leading-6">
+                Devix will fetch the public repository, detect its framework, and
+                prepare a new playground.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-5 py-6">
               <div className="grid gap-2">
                 <Label htmlFor="repo-url">Repository URL</Label>
                 <Input
                   id="repo-url"
                   placeholder="https://github.com/user/repo"
                   value={repoUrl}
-                  onChange={(e) => setRepoUrl(e.target.value)}
+                  onChange={(event) => setRepoUrl(event.target.value)}
                   disabled={isLoading}
+                  className="h-11"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="title">Project Title (Optional)</Label>
+                <Label htmlFor="title">Project title</Label>
                 <Input
                   id="title"
-                  placeholder="Will use repo name if left blank"
+                  placeholder="Optional, defaults to repository name"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(event) => setTitle(event.target.value)}
                   disabled={isLoading}
+                  className="h-11"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                disabled={isLoading}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading || !repoUrl}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Mounting...
+                    <Loader2 className="size-4 animate-spin" />
+                    Mounting
                   </>
                 ) : (
-                  "Import Repository"
+                  "Import repository"
                 )}
               </Button>
             </DialogFooter>
