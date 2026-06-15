@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { currentUser } from '@/features/auth/actions';
 import { db } from '@/lib/db';
 import type { TemplateFile, TemplateFolder } from '@/features/playground/types';
+import type { Templates } from '@prisma/client';
 
 const MAX_FILE_SIZE = 100 * 1024; // 100 KB limit for files
 
@@ -44,8 +45,16 @@ export async function POST(req: Request) {
     const repo = parts[1].replace('.git', '');
 
     // Get default branch
+    const githubHeaders: HeadersInit = {
+      'User-Agent': 'Devix-App',
+      Accept: 'application/vnd.github+json',
+      ...(process.env.GITHUB_TOKEN
+        ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+        : {}),
+    };
+
     const repoInfoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-        headers: { 'User-Agent': 'Devix-App' }
+        headers: githubHeaders
     });
 
     if (!repoInfoRes.ok) {
@@ -60,7 +69,7 @@ export async function POST(req: Request) {
 
     // Fetch the tree recursively
     const treeRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${defaultBranch}?recursive=1`, {
-        headers: { 'User-Agent': 'Devix-App' }
+        headers: githubHeaders
     });
 
     if (!treeRes.ok) {
@@ -92,6 +101,7 @@ export async function POST(req: Request) {
         folderName: "root",
         items: []
     };
+    let packageJsonContent = "";
 
     // Helper to insert a file into our nested TemplateFolder structure
     const insertFile = (path: string, content: string) => {
@@ -122,6 +132,9 @@ export async function POST(req: Request) {
             fileExtension,
             content
         });
+        if (path === "package.json") {
+          packageJsonContent = content;
+        }
     };
 
     // Fetch contents concurrently in batches
@@ -129,9 +142,10 @@ export async function POST(req: Request) {
     for (let i = 0; i < filesToFetch.length; i += BATCH_SIZE) {
         const batch = filesToFetch.slice(i, i + BATCH_SIZE);
         await Promise.all(batch.map(async (item: any) => {
-            const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${item.path}`;
+            const encodedPath = item.path.split('/').map(encodeURIComponent).join('/');
+            const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(defaultBranch)}/${encodedPath}`;
             try {
-                const res = await fetch(rawUrl);
+                const res = await fetch(rawUrl, { headers: githubHeaders });
                 if (res.ok) {
                     const content = await res.text();
                     insertFile(item.path, content);
@@ -142,12 +156,33 @@ export async function POST(req: Request) {
         }));
     }
 
+    const detectTemplate = (): Templates => {
+      const paths = filesToFetch.map((file: any) => file.path.toLowerCase());
+      let packageJson: Record<string, any> = {};
+      try {
+        packageJson = packageJsonContent ? JSON.parse(packageJsonContent) : {};
+      } catch {
+        packageJson = {};
+      }
+      const dependencies = {
+        ...(packageJson.dependencies || {}),
+        ...(packageJson.devDependencies || {}),
+      };
+
+      if (dependencies.next || paths.some((path: string) => path.startsWith("next.config."))) return "NEXTJS";
+      if (dependencies["@angular/core"] || paths.includes("angular.json")) return "ANGULAR";
+      if (dependencies.vue || paths.some((path: string) => path.endsWith(".vue"))) return "VUE";
+      if (dependencies.hono) return "HONO";
+      if (dependencies.express) return "EXPRESS";
+      return "REACT";
+    };
+
     // Create playground
     const playground = await db.playground.create({
         data: {
             title: title || repoInfo.name,
             description: description || repoInfo.description || `Imported from ${owner}/${repo}`,
-            template: "REACT", // Default since we don't have an "EMPTY" or "CUSTOM"
+            template: detectTemplate(),
             userId: user.id
         }
     });

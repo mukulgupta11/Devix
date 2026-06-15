@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { GoogleGenAI } from "@google/genai"
+import { auth } from "@/auth"
 
 interface CodeSuggestionRequest {
   fileContent: string
@@ -24,6 +25,11 @@ interface CodeContext {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const body: CodeSuggestionRequest = await request.json()
     const { fileContent, cursorLine, cursorColumn, suggestionType, fileName } = body
 
@@ -149,7 +155,7 @@ async function generateSuggestion(prompt: string): Promise<string> {
       },
     })
 
-    let suggestion = response.text || "// AI suggestion unavailable"
+    let suggestion = response.text || ""
 
     // Clean up the suggestion
     if (suggestion.includes("```")) {
@@ -160,10 +166,13 @@ async function generateSuggestion(prompt: string): Promise<string> {
     // Remove cursor markers if present
     suggestion = suggestion.replace(/\|CURSOR\|/g, "").trim()
 
+    if (!suggestion) {
+      throw new Error("The AI model returned an empty suggestion")
+    }
     return suggestion
   } catch (error) {
     console.error("Gemini generation error:", error)
-    return "// AI suggestion unavailable"
+    throw error
   }
 }
 

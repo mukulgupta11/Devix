@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs/promises";
 import os from "os";
 import { NextRequest } from "next/server";
+import { currentUser } from "@/features/auth/actions";
 
 // Helper function to ensure valid JSON
 function validateJsonStructure(data: unknown): boolean {
@@ -28,8 +29,13 @@ export async function GET(
     return Response.json({ error: "Missing playground ID" }, { status: 400 });
   }
 
-  const playground = await db.playground.findUnique({
-    where: { id },
+  const user = await currentUser();
+  if (!user?.id) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const playground = await db.playground.findFirst({
+    where: { id, userId: user.id },
   });
 
   if (!playground) {
@@ -46,9 +52,6 @@ export async function GET(
   try {
     const inputPath = path.join(process.cwd(), templatePath);
     const outputFile = path.join(os.tmpdir(), `template-${templateKey}-${id}.json`);
-
-    console.log("Input Path:", inputPath);
-    console.log("Output Path:", outputFile);
 
     // Save and read the template structure
     await saveTemplateStructureToJson(inputPath, outputFile);
@@ -69,5 +72,4 @@ export async function GET(
     return Response.json({ error: "Failed to generate template" }, { status: 500 });
   }
 }
-
 

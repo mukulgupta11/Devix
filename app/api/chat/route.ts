@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { GoogleGenAI } from "@google/genai"
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
 
 interface ChatMessage {
   role: "user" | "assistant"
@@ -116,6 +118,11 @@ Return only the enhanced prompt, nothing else.`
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const body = await req.json()
 
     // Handle prompt enhancement
@@ -125,7 +132,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Handle regular chat
-    const { message, history } = body
+    const { message, displayMessage, history } = body
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message is required and must be a string" }, { status: 400 })
@@ -151,6 +158,21 @@ export async function POST(req: NextRequest) {
       throw new Error("Empty response from Gemini")
     }
 
+    await db.chatMessage.createMany({
+      data: [
+        {
+          userId: session.user.id,
+          role: "user",
+          content: String(displayMessage || message).slice(0, 12000),
+        },
+        {
+          userId: session.user.id,
+          role: "assistant",
+          content: aiResponse.slice(0, 20000),
+        },
+      ],
+    })
+
     return NextResponse.json({
       response: aiResponse,
       model: "gemini-2.5-flash-lite",
@@ -171,9 +193,26 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
   // Check if API key is configured
   const apiKey = process.env.GEMINI_API_KEY
   const isConfigured = apiKey && apiKey !== "your_gemini_api_key_here"
+
+  const history = await db.chatMessage.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+    select: {
+      id: true,
+      role: true,
+      content: true,
+      createdAt: true,
+    },
+  })
 
   return NextResponse.json({
     status: isConfigured ? "AI Chat API is running (Gemini 2.5 Flash Lite)" : "AI Chat API needs configuration",
@@ -181,5 +220,6 @@ export async function GET() {
     model: "gemini-2.5-flash-lite",
     timestamp: new Date().toISOString(),
     info: "Use POST method to send chat messages or enhance prompts",
+    history: history.reverse(),
   })
 }
