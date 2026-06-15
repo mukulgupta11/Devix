@@ -46,9 +46,6 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: [
-    "/((?!auth/logout|.+\\.[\\w]+$|_next).*)",
-    "/",
-    "/(api|trpc)(.*)",
-  ],
+  // copied from clerk
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
