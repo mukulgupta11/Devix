@@ -2,6 +2,7 @@
 
 import { auth, signIn, signOut } from "@/auth";
 import { db } from "@/lib/db";
+import { cookies } from "next/headers";
 
 
 export const getUserById = async (id:string)=>{
@@ -45,5 +46,23 @@ export const signInWithGithub = async () => {
 };
 
 export const logout = async () => {
+  try {
+    const cookieStore = await cookies();
+    const allCookies = cookieStore.getAll();
+    for (const cookie of allCookies) {
+      if (
+        cookie.name.includes("session-token") ||
+        cookie.name.includes("csrf-token") ||
+        cookie.name.includes("callback-url") ||
+        cookie.name.includes("authjs") ||
+        cookie.name.includes("next-auth")
+      ) {
+        cookieStore.delete(cookie.name);
+      }
+    }
+  } catch (error) {
+    console.error("Error clearing cookies in logout action:", error);
+  }
+
   await signOut({ redirectTo: "/" });
 };
