@@ -33,11 +33,6 @@ export default auth((req) => {
     return null;
   }
 
-  // Redirect logged-in users away from the public landing page to the dashboard.
-  if (nextUrl.pathname === "/" && isLoggedIn) {
-    return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
-  }
-
   if(!isLoggedIn && !isPublicRoute){
     return Response.redirect(new URL("/auth/sign-in" , nextUrl))
   }
