@@ -272,7 +272,13 @@ export function DashboardSidebar({
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive cursor-pointer"
                   onClick={async () => {
-                    await logout();
+                    try {
+                      await logout();
+                    } catch {
+                      // catch NEXT_REDIRECT
+                    } finally {
+                      window.location.href = "/";
+                    }
                   }}
                 >
                   <LogOut className="size-4" />

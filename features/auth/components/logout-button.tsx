@@ -9,7 +9,13 @@ const LogoutButton = ({ children }: LogoutButtonProps) => {
 
   const onLogout = () => {
     startTransition(async () => {
-      await logout();
+      try {
+        await logout();
+      } catch {
+        // catch NEXT_REDIRECT
+      } finally {
+        window.location.href = "/";
+      }
     });
   };
 
