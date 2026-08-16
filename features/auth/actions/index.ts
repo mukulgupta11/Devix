@@ -1,6 +1,6 @@
 "use server";
 
-import { auth, signIn } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 import { db } from "@/lib/db";
 
 
@@ -42,4 +42,8 @@ export const signInWithGoogle = async () => {
 
 export const signInWithGithub = async () => {
   await signIn("github", { redirectTo: "/dashboard" });
+};
+
+export const logout = async () => {
+  await signOut({ redirectTo: "/" });
 };
