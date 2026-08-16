@@ -6,6 +6,7 @@ export default{
     // Netlify terminates HTTPS before forwarding requests to Next.js.
     // Auth.js must trust those forwarded host/protocol headers for redirects.
     trustHost: true,
+    secret: process.env.AUTH_SECRET,
     providers:[
         GitHub({
             clientId:process.env.AUTH_GITHUB_ID,
