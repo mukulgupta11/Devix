@@ -37,14 +37,15 @@ const UserButton = () => {
           {user?.email}
         </span>
       </DropdownMenuItem>
-      <DropdownMenuSeparator/>
-        <LogoutButton>
-            <DropdownMenuItem>
-                <LogOut className="h-4 w-4 mr-2"/>
-                LogOut
-            </DropdownMenuItem>
-        </LogoutButton>
-    </DropdownMenuContent>
+        <DropdownMenuItem asChild>
+          <LogoutButton>
+            <div className="flex items-center w-full cursor-pointer text-destructive focus:text-destructive">
+              <LogOut className="h-4 w-4 mr-2" />
+              LogOut
+            </div>
+          </LogoutButton>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
 
     </DropdownMenu>
   );

@@ -1,25 +1,33 @@
 "use client";
 
-import React from 'react'
-import { LogoutButtonProps } from '../types'
-import { signOut } from 'next-auth/react';
+import React, { useTransition } from "react";
+import { LogoutButtonProps } from "../types";
+import { logout } from "../actions";
 
-const LogoutButton = ({children}:LogoutButtonProps) => {
-    const onLogout = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await signOut({ redirectTo: "/" });
-    }
+const LogoutButton = ({ children }: LogoutButtonProps) => {
+  const [isPending, startTransition] = useTransition();
+
+  const onLogout = () => {
+    startTransition(async () => {
+      await logout();
+    });
+  };
 
   return (
-    <button
-        type="button"
-        className="w-full text-left cursor-pointer"
-        onClick={onLogout}
+    <span
+      role="button"
+      tabIndex={0}
+      className={`w-full text-left cursor-pointer inline-flex items-center ${isPending ? "opacity-50 pointer-events-none" : ""}`}
+      onClick={onLogout}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onLogout();
+        }
+      }}
     >
-        {children}
-    </button>
-  )
-}
+      {children}
+    </span>
+  );
+};
 
-export default LogoutButton
+export default LogoutButton;
